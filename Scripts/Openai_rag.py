@@ -122,16 +122,7 @@ class OpenAI_RAG:
             - db: Die Chroma Datenbank
         """
 
-        configuration = {
-            "client": "PersistentClient",
-            "path": "/tmp/.chroma"
-        }
-        collection_name = "documents_collection"
-        conn = st.connection("chromadb",
-                            type=ChromaDBConnection,
-                            **configuration)
-        documents_collection_df = conn.get_collection_data(collection_name)
-        db = st.dataframe(documents_collection_df)
+        db = Chroma.from_documents(chunks, embedding_function)
 
         return db
     
