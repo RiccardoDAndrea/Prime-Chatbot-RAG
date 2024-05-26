@@ -15,7 +15,6 @@ import os
 import json
 from langchain_community.document_loaders import PyPDFLoader
 from tempfile import NamedTemporaryFile
-from streamlit_chromadb_connection.chromadb_connection import ChromadbConnection
 
 # with open('/Users/riccardo/Desktop/Repositorys_Github/LLM/Docs/api_token.json', 'r') as api_file:
 #     api_token_file = json.load(api_file)
