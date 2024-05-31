@@ -3,14 +3,11 @@ import streamlit as st
 import os
 from langchain_community.document_loaders import PyPDFLoader
 import os 
-
-
 import streamlit as st
-from langchain.llms import OpenAI
+from langchain_community.llms import OpenAI
 from langchain_openai import ChatOpenAI
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import Chroma
-from langchain_community.embeddings import SentenceTransformerEmbeddings
 from langchain.chains import RetrievalQAWithSourcesChain
 from langchain_community.embeddings import HuggingFaceEmbeddings
 import os
@@ -18,8 +15,8 @@ import json
 from langchain_community.document_loaders import PyPDFLoader
 from tempfile import NamedTemporaryFile
 from streamlit_chromadb_connection.chromadb_connection import ChromadbConnection
-# with open('/Users/riccardo/Desktop/Repositorys_Github/LLM/Docs/api_token.json', 'r') as api_file:
-#     api_token_file = json.load(api_file)
+with open('/Applications/LLM_RAG/api_token.json', 'r') as api_file:
+    api_token_file = json.load(api_file)
 
 
 openai_token = st.sidebar.text_input("OpenAI API Token", "sk-")
@@ -131,7 +128,7 @@ class OpenAI_RAG:
         }
         collection_name = "documents_collection"
         conn = st.connection("chromadb",
-                            type=ChromaDBConnection,
+                            type=ChromadbConnection,
                             **configuration)
         documents_collection_df = conn.get_collection_data(collection_name)
         db = st.dataframe(documents_collection_df)

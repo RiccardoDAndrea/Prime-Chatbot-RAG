@@ -7,3 +7,4 @@ __pycache__/
 *.so
 LLM
 api_token.json
+con
