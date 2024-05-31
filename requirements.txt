@@ -9,6 +9,6 @@ langchain-text-splitters
 langsmith
 openai
 pypdf
-streamlit-chromadb-connection
 tokenizers
 transformers
+sentence-transformers 

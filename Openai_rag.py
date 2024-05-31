@@ -1,6 +1,5 @@
-import os 
+from sentence_transformers import SentenceTransformer
 import streamlit as st
-import os
 from langchain_community.document_loaders import PyPDFLoader
 import os 
 import streamlit as st
@@ -10,7 +9,6 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import Chroma
 from langchain.chains import RetrievalQAWithSourcesChain
 from langchain_community.embeddings import HuggingFaceEmbeddings
-import os
 import json
 from langchain_community.document_loaders import PyPDFLoader
 from tempfile import NamedTemporaryFile
