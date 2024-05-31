@@ -14,8 +14,8 @@ import os
 import json
 from langchain_community.document_loaders import PyPDFLoader
 from tempfile import NamedTemporaryFile
-with open('docs/api_token.json', 'r') as api_file:
-    api_token_file = json.load(api_file)
+# with open('docs/api_token.json', 'r') as api_file:
+#     api_token_file = json.load(api_file)
 
 
 openai_token = st.sidebar.text_input("OpenAI API Token", "sk-")
