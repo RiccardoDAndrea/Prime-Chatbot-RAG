@@ -12,5 +12,3 @@ pypdf
 streamlit-chromadb-connection
 tokenizers
 transformers
---pre pydeck==0.8.1b0
---pre streamlit-chromadb-connection
