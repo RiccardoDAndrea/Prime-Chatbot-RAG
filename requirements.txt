@@ -12,3 +12,4 @@ pypdf
 tokenizers
 transformers
 sentence-transformers 
+streamlit

@@ -1,7 +1,6 @@
 import streamlit as st
 from langchain_community.document_loaders import PyPDFLoader
 import os 
-import streamlit as st
 from langchain_community.llms import OpenAI
 from langchain_openai import ChatOpenAI
 from langchain.text_splitter import RecursiveCharacterTextSplitter
