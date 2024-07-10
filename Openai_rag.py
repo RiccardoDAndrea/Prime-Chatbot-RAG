@@ -1,188 +1,38 @@
 import streamlit as st
+import openai
 from langchain_community.document_loaders import PyPDFLoader
-import os 
-from langchain_community.llms import OpenAI
+import os
 from langchain_openai import ChatOpenAI
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import Chroma
 from langchain.chains import RetrievalQAWithSourcesChain
 from langchain_community.embeddings import HuggingFaceEmbeddings
-import json
-from langchain_community.document_loaders import PyPDFLoader
 from tempfile import NamedTemporaryFile
-# with open('docs/api_token.json', 'r') as api_file:
-#     api_token_file = json.load(api_file)
+from streamlit_pdf_viewer import pdf_viewer
 
-
-openai_token = st.sidebar.text_input("OpenAI API Token", "sk-")
-if len(openai_token) == 0:
+# Streamlit Sidebar for OpenAI API Token
+Open_api_token = st.sidebar.text_input("OpenAI API Token", "sk-", type="password")
+if len(Open_api_token) == 0:
     st.warning("Please enter your OpenAI API Token")
     st.stop()
 
-
 # OpenAI API Token
-#Open_api_token = api_token_file['Open_api_token']
-Open_api_token = openai_token
-
-class OpenAI_RAG:
-    """
-    Eine Klasse die ein OpenAI-Modell initialisiert und eine Frage beantwortet.
-    Input: 
-        - Ist die Frage als Varaible query
-
-    Output:
-        - Die Antwort auf die Frage
-    
-    """
-
-    def __init__(self, Open_api_token: str, uploaded_file: str):
-        self.Open_api_token = Open_api_token
-        self.uploaded_file = uploaded_file
 
 
-    def text_splitter(self):
-        """
-        Initialisiert den Text-Splitter
-
-        Input:
-            - None
-
-        Output:
-            - text_splitter: Ein Objekt des Text-Splitters
-        """
-        
-        text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=200,
-            chunk_overlap=50, 
-            length_function=len,
-            
-        )
-
-        return text_splitter
-
-    def loader_for_chunks(self, text_splitter):
-        """
-        Initialisiert den Loader für die Chunks mit der externen Datenquelle
-
-        Input:
-            - text_splitter: Ein Objekt des Text-Splitters aus der function text_splitter()
-            - filepath: Der Pfad zur externen Datenquelle (z.B. eine PDF-Datei)
-
-        Output:
-            - chunks: Die Chunks der externen Datenquelle
-        """
-        # Annahme: Die Methode initialize() gibt Autor, Titel und Abstract zurück
-           
-        if self.uploaded_file:
-            # Erstelle eine temporäre Datei
-            with NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
-                # Schreibe den Inhalt des hochgeladenen PDFs in die temporäre Datei
-                temp_file.write(self.uploaded_file.read())
-
-            # Initialisiere den PyPDFLoader mit dem Dateipfad der temporären Datei
-            loader = PyPDFLoader(temp_file.name)
-            chunks = loader.load_and_split()
-
-            # Lösche die temporäre Datei
-            os.unlink(temp_file.name)
-        else:
-            chunks = []
-        
-        return chunks
-
-    def embedding(self):
-        """
-        Gibt ein Model mit Sentence-Embeddings zurück
-        Input: 
-            - None
-
-        Output: 
-            - embedding_function
-        """
-
-        embedding_function = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
-
-
-        return embedding_function
-
-    def initialise_chroma(self, chunks, embedding_function):
-        """
-        
-        Initialisiert die Chroma Datenbank
-        Input:
-            - chunks: Die Chunks der Exteren Datenquelle
-            - embedding_function: Ein Objekt des Sentence-Embeddings
-
-        Output:
-            - db: Die Chroma Datenbank
-        """
-
-        db = Chroma.from_documents(chunks, embedding_function)
-        return db
-    
-    def retriever(self, db, query):
-        """
-        Initialisiert den Retriever für die externe Datenquellen und gibt die relevanten Dokumente zurück aus der Quelle
-        filepath = '/Users/riccardo/Desktop/Repositorys_Github/LLM/Docs/merged.pdf'
-
-        Input:
-            - db: Die Chroma Datenbank
-            - query: Die Frage
-        
-        Output:
-            - retriever: Die relevanten Dokumente
-        
-        """
-
-        retriever = db.as_retriever(search_kwargs={"k": 2})
-        retriever.invoke(query)
-        
-        return retriever
-
-    def llm_model(self):
-        """
-        Initialisiert das OpenAI-Modell. Hier wird das OpenAI modell genutzt für das RAG Modell
-        
-        Input:
-            - None
-        
-        Output:
-            - das LLM Modell von OpenAI
-        """
-        
-        llm = ChatOpenAI(
-            openai_api_key= Open_api_token,
-            model_name = "gpt-3.5-turbo",
-            temperature = 0.0,
-            max_tokens = 300
-        )
-
-        return llm
-        
-    def qa_with_sources(self, query):
-        """
-        Die Funktion die die Frage beantwortet und die Quellen zurückgibt
-        Input:
-            - query: Die die Frage beinhalet
-        Output:
-            - qa_with_sources: Die Antwort auf die Frage und die Quellen
-        
-        """
-
-        llm = self.llm_model()
-        text_splitter_instance = self.text_splitter()
-        chunks = self.loader_for_chunks(text_splitter_instance)
-        embedding_instance = self.embedding()
-        retriever_instance = self.retriever(Chroma.from_documents(chunks, embedding_instance), query)
-        qa_with_sources = RetrievalQAWithSourcesChain.from_chain_type(llm=llm, chain_type="stuff", retriever=retriever_instance)
-        
-        return qa_with_sources.invoke(query)
-    
-# Streamlit Main
+# Sidebar for selecting example PDFs or uploading a PDF
 st.sidebar.title("OpenAI RAG")
 
+st.sidebar.markdown("### Example PDFs")
+example_pdfs = {
+    "Short Stories": "/Users/riccardo/Desktop/Github/LLM_RAG/16_Kurzgeschichten.pdf",
+    "Marketing Results": "/Users/riccardo/Desktop/Github/LLM_RAG/s12943-023-01867-y.pdf",
+}
+
+selected_example_pdfs = st.sidebar.selectbox('Choose your PDF example', options=["Upload your own data", "Short Stories", "Marketing Results"])
+
 st.title("OpenAI RAG")
-st.write ("""This is a simple implementation of OpenAI's 
+
+st.write("""This is a simple implementation of OpenAI's 
           Retrieval Augmented Generation (RAG) model. 
           The model is trained on a combination of 
           supervised and reinforcement learning. 
@@ -191,18 +41,27 @@ st.write ("""This is a simple implementation of OpenAI's
           of tasks, such as question answering, 
           summarization, and translation.""")
 
-os.environ["TOKENIZERS_PARALLELISM"] = "false"
+chatbot_tab, pdf_reader_tab = st.tabs(["Chatbot", "PDF Reader"])
 
+with chatbot_tab:
+    os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
-# Hole den OpenAI-Token aus den Umgebungsvariablen
-OPENAI_TOKEN = os.environ.get('OPENAI_TOKEN')
+    # Show file uploader only if "Upload your own data" is selected
+    uploaded_file = None    
+    if selected_example_pdfs == "Upload your own data":
+        uploaded_file = st.file_uploader("Upload a PDF file", type=["pdf"], key="pdf_uploader")
+    
+    with st.chat_message("assistant"):
+        st.markdown("""
+            Welcome to Prime! 🤖 I am your personal document detective! Send me your PDFs and I will put them through their paces. From 
+            - "What's this about?" to 
+            - "What are the key points?" and even 
+            - "What's the scoop on topic X?" - 
 
-uploaded_file = st.file_uploader("Choose a PDF file", type=["pdf"])
+            I'm your man! 🕵️‍♂️ Uh, your bot. Never mind, you know. Let us crack your PDFs! 💼
+            Don't forget to upload a PDF or select an example PDF! 📎
+            """)
 
-openai_rag = OpenAI_RAG(OPENAI_TOKEN, uploaded_file)
-
-# Chat
-if uploaded_file:
     if "messages" not in st.session_state:
         st.session_state.messages = []
 
@@ -210,43 +69,116 @@ if uploaded_file:
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
-
-    if prompt := st.chat_input("Ask a question about: " + uploaded_file.name if uploaded_file else ""):
-        if uploaded_file:
-        # Append the user message to the history
             
+    if prompt := st.chat_input("Ask a question about: " + uploaded_file.name if uploaded_file else "Ask a question about the selected PDF"):
+        if uploaded_file or selected_example_pdfs:
             st.session_state.messages.append({"role": "user", "content": prompt})
             st.chat_message("user").write(prompt)
             
             with st.spinner("Thinking..."):  # Display spinner while processing
-                antwort = openai_rag.qa_with_sources(prompt)
-            
+                
+                # Initializing text splitter
+                text_splitter = RecursiveCharacterTextSplitter(
+                    chunk_size=200,
+                    chunk_overlap=50,
+                    length_function=len,
+                )
+                
+                # Loading and splitting PDF into chunks
+                chunks = []
+                if uploaded_file:
+                    try:
+                        with NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
+                            temp_file.write(uploaded_file.read())
+                        loader = PyPDFLoader(temp_file.name)
+                        chunks += loader.load_and_split()
+                        os.unlink(temp_file.name)
+                    except Exception as e:
+                        st.error(f"Error loading and splitting the PDF: {e}")
+
+                if selected_example_pdfs != "Upload your own data":
+                    try:
+                        pdf_path = example_pdfs[selected_example_pdfs]
+                        loader = PyPDFLoader(pdf_path)
+                        chunks += loader.load_and_split()
+                    except Exception as e:
+                        st.error(f"Error loading and splitting the example PDF {pdf_path}: {e}")
+
+                # Initializing embeddings
+                try:
+                    embedding_function = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+                except Exception as e:
+                    st.error(f"Error initializing embeddings: {e}")
+                    embedding_function = None
+
+                # Initializing Chroma database
+                try:
+                    if embedding_function:
+                        db = Chroma.from_documents(chunks, embedding_function)
+                    else:
+                        db = None
+                except Exception as e:
+                    st.error(f"Error initializing Chroma database: {e}")
+                    db = None
+
+                # Retrieving documents
+                try:
+                    if db:
+                        retriever = db.as_retriever(search_kwargs={"k": 2})
+                        retriever.invoke(prompt)
+                    else:
+                        retriever = None
+                except Exception as e:
+                    st.error(f"Error retrieving documents: {e}")
+                    retriever = None
+
+                # Initializing LLM model
+                try:
+                    llm = ChatOpenAI(
+                        openai_api_key=Open_api_token,
+                        model_name="gpt-3.5-turbo",
+                        temperature=0.0,
+                        max_tokens=300
+                    )
+                except Exception as e:
+                    st.error(f"Error initializing OpenAI model: {e}")
+                    llm = None
+
+                # Processing QA with sources
+                try:
+                    if llm and retriever:
+                        qa_with_sources = RetrievalQAWithSourcesChain.from_chain_type(llm=llm, chain_type="stuff", retriever=retriever)
+                        antwort = qa_with_sources.invoke(prompt)
+                    else:
+                        antwort = {"answer": "Error initializing components."}
+                except Exception as e:
+                    st.error(f"Error processing QA: {e}")
+                    antwort = {"answer": f"Error processing request: {e}"}
+
             with st.chat_message("assistant"):
                 st.write(antwort["answer"])
-                # append the assistant's response to the history
                 st.session_state.messages.append({"role": "assistant", "content": antwort["answer"]})
-        
-            
+
+with pdf_reader_tab:
+    st.write("PDF Reader")
+    
+    if selected_example_pdfs == "Upload your own data" and uploaded_file is not None:
+        # Read the binary data from the uploaded file
+        binary_data = uploaded_file.read()
+        pdf_viewer(input=binary_data, width=700)
+    
+    elif selected_example_pdfs == "Short Stories":
+        pdf_path_short_stories = "/Users/riccardo/Desktop/Github/LLM_RAG/16_Kurzgeschichten.pdf"
+        with open(pdf_path_short_stories, "rb") as f:
+            binary_data = f.read()
+        pdf_viewer(input=binary_data, width=700)    
+    
+    elif selected_example_pdfs == "Marketing Results":
+        pdf_path_marketing = "/Users/riccardo/Desktop/Github/LLM_RAG/s12943-023-01867-y.pdf"
+        with open(pdf_path_marketing, "rb") as f:
+            binary_data = f.read()
+        pdf_viewer(input=binary_data, width=700)
+    
     else:
-        st.divider()
-        with st.chat_message("assistant"):
-            st.markdown("""
-                        Welcome to Prime! 🤖 I am your personal document detective! Send me your PDFs and I will put them through their paces. From 
-                        - "What's this about?" to 
-                        - "What are the key points?" and even 
-                        - "What's the scoop on topic X?" - 
-
-                        I'm your man! 🕵️‍♂️ Uh, your bot. Never mind, you know. Let us crack your PDFs! 💼
-                        Don't forget to upload a PDF! 📎
-                        """)
-else:   
-    with st.chat_message("assistant"):
-            st.markdown("""
-                        Welcome to Prime! 🤖 I am your personal document detective! Send me your PDFs and I will put them through their paces. From 
-                        - "What's this about?" to 
-                        - "What are the key points?" and even 
-                        - "What's the scoop on topic X?" - 
-
-                        I'm your man! 🕵️‍♂️ Uh, your bot. Never mind, you know. Let us crack your PDFs! 💼
-                        Don't forget to upload a PDF! 📎
-                        """)
+        st.write("Please upload a PDF or select an example PDF.")
+ 
