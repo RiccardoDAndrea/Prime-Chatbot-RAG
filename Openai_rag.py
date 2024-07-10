@@ -33,7 +33,7 @@ st.write("""This is a simple implementation of OpenAI's
           to questions, and can be used for a variety 
           of tasks, such as question answering, 
           summarization, and translation.""")
-
+st.divider()
 
 # Function to load and split PDFs
 def load_and_split_pdf(uploaded_file, selected_example):
