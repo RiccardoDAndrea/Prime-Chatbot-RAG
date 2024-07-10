@@ -10,25 +10,18 @@ from langchain_community.embeddings import HuggingFaceEmbeddings
 from tempfile import NamedTemporaryFile
 from streamlit_pdf_viewer import pdf_viewer
 
-# Streamlit Sidebar for OpenAI API Token
 Open_api_token = st.sidebar.text_input("OpenAI API Token", "sk-", type="password")
-if len(Open_api_token) == 0:
-    st.warning("Please enter your OpenAI API Token")
-    st.stop()
 
-# OpenAI API Token
-
-
-# Sidebar for selecting example PDFs or uploading a PDF
-st.sidebar.title("OpenAI RAG")
-
-st.sidebar.markdown("### Example PDFs")
 example_pdfs = {
     "Short Stories": "/Users/riccardo/Desktop/Github/LLM_RAG/16_Kurzgeschichten.pdf",
     "Marketing Results": "/Users/riccardo/Desktop/Github/LLM_RAG/s12943-023-01867-y.pdf",
 }
 
-selected_example_pdfs = st.sidebar.selectbox('Choose your PDF example', options=["Upload your own data", "Short Stories", "Marketing Results"])
+# Streamlit Main
+st.sidebar.title("OpenAI RAG")
+
+st.sidebar.markdown("### Example PDFs")
+selected_example_pdfs = st.sidebar.selectbox('Choose your PDF example', options=["Short Stories", "Marketing Results", "Upload your own data"])
 
 st.title("OpenAI RAG")
 
@@ -41,26 +34,126 @@ st.write("""This is a simple implementation of OpenAI's
           of tasks, such as question answering, 
           summarization, and translation.""")
 
-chatbot_tab, pdf_reader_tab = st.tabs(["Chatbot", "PDF Reader"])
+chatbot_tab, Pdf_reader_tab = st.tabs(["Chatbot", "PDF Reader"])
 
-with chatbot_tab:
+# Function to load and split PDFs
+def load_and_split_pdf(uploaded_file, selected_example):
+    chunks = []
+    # Load the uploaded file
+    if uploaded_file:
+        try:
+            with NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
+                temp_file.write(uploaded_file.read())
+            loader = PyPDFLoader(temp_file.name)
+            chunks += loader.load_and_split()
+            os.unlink(temp_file.name)
+        except Exception as e:
+            st.error(f"Error loading and splitting the PDF: {e}")
+    
+    # Load the selected example PDF
+    elif selected_example and example_pdfs[selected_example]:
+        try:
+            pdf_path = example_pdfs[selected_example]
+            loader = PyPDFLoader(pdf_path)
+            chunks += loader.load_and_split()
+        except Exception as e:
+            st.error(f"Error loading and splitting the example PDF {pdf_path}: {e}")
+
+    return chunks
+
+# Function to initialize embeddings
+def initialize_embeddings():
+    try:
+        embedding_function = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+        return embedding_function
+    except Exception as e:
+        st.error(f"Error initializing embeddings: {e}")
+        return None
+
+# Function to initialize Chroma database
+def initialize_chroma(chunks, embedding_function):
+    try:
+        db = Chroma.from_documents(chunks, embedding_function)
+        return db
+    except Exception as e:
+        st.error(f"Error initializing Chroma database: {e}")
+        return None
+
+# Function to retrieve documents
+def retrieve_documents(db, query):
+    try:
+        retriever = db.as_retriever(search_kwargs={"k": 2})
+        retriever.invoke(query)
+        return retriever
+    except Exception as e:
+        st.error(f"Error retrieving documents: {e}")
+        return None
+
+# Function to initialize LLM model
+def initialize_llm_model():
+    try:
+        llm = ChatOpenAI(
+            openai_api_key=Open_api_token,
+            model_name="gpt-3.5-turbo",
+            temperature=0.0,
+            max_tokens=300
+        )
+        return llm
+    except Exception as e:
+        st.error(f"Error initializing OpenAI model: {e}")
+        return None
+
+# Function to perform QA with sources
+def qa_with_sources(llm_instance, chunks, embedding_instance, query):
+    try:
+        text_splitter_instance = RecursiveCharacterTextSplitter(
+            chunk_size=200,
+            chunk_overlap=50,
+            length_function=len,
+        )
+        db = initialize_chroma(chunks, embedding_instance)
+        if not db:
+            return {"answer": "Error initializing Chroma database."}
+        retriever_instance = retrieve_documents(db, query)
+        if not retriever_instance:
+            return {"answer": "Error retrieving documents."}
+        qa_with_sources_result = RetrievalQAWithSourcesChain.from_chain_type(llm=llm_instance, chain_type="stuff", retriever=retriever_instance)
+        return qa_with_sources_result.invoke(query)
+    except Exception as e:
+        st.error(f"Error processing QA: {e}")
+        return {"answer": f"Error processing request: {e}"}
+
+# Main execution
+if chatbot_tab:
     os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
     # Show file uploader only if "Upload your own data" is selected
-    uploaded_file = None    
+    uploaded_file = None
     if selected_example_pdfs == "Upload your own data":
-        uploaded_file = st.file_uploader("Upload a PDF file", type=["pdf"], key="pdf_uploader")
-    
-    with st.chat_message("assistant"):
-        st.markdown("""
-            Welcome to Prime! 🤖 I am your personal document detective! Send me your PDFs and I will put them through their paces. From 
-            - "What's this about?" to 
-            - "What are the key points?" and even 
-            - "What's the scoop on topic X?" - 
+        uploaded_file = st.file_uploader("Upload a PDF file", type=["pdf"])
+        if "messages" not in st.session_state:
+            st.session_state.messages = []
+        with st.chat_message("assistant"):
+            st.markdown("""
+                        Welcome to Prime! 🤖 I am your personal document detective! Send me your PDFs and I will put them through their paces. From 
+                        - "What's this about?" to 
+                        - "What are the key points?" and even 
+                        - "What's the scoop on topic X?" - 
 
-            I'm your man! 🕵️‍♂️ Uh, your bot. Never mind, you know. Let us crack your PDFs! 💼
-            Don't forget to upload a PDF or select an example PDF! 📎
-            """)
+                        I'm your man! 🕵️‍♂️ Uh, your bot. Never mind, you know. Let us crack your PDFs! 💼
+                        Don't forget to upload a PDF or select an example PDF! 📎
+                        """)
+    else:
+        with st.chat_message("assistant"):
+            st.markdown("""
+                        Welcome to Prime! 🤖 I am your personal document detective! Send me your PDFs and I will put them through their paces. From 
+                        - "What's this about?" to 
+                        - "What are the key points?" and even 
+                        - "What's the scoop on topic X?" - 
+
+                        I'm your man! 🕵️‍♂️ Uh, your bot. Never mind, you know. Let us crack your PDFs! 💼
+                        Don't forget to upload a PDF or select an example PDF! 📎
+                        """)
 
     if "messages" not in st.session_state:
         st.session_state.messages = []
@@ -70,115 +163,28 @@ with chatbot_tab:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
             
-    if prompt := st.chat_input("Ask a question about: " + uploaded_file.name if uploaded_file else "Ask a question about the selected PDF"):
-        if uploaded_file or selected_example_pdfs:
-            st.session_state.messages.append({"role": "user", "content": prompt})
-            st.chat_message("user").write(prompt)
-            
-            with st.spinner("Thinking..."):  # Display spinner while processing
-                
-                # Initializing text splitter
-                text_splitter = RecursiveCharacterTextSplitter(
-                    chunk_size=200,
-                    chunk_overlap=50,
-                    length_function=len,
-                )
-                
-                # Loading and splitting PDF into chunks
-                chunks = []
-                if uploaded_file:
-                    try:
-                        with NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
-                            temp_file.write(uploaded_file.read())
-                        loader = PyPDFLoader(temp_file.name)
-                        chunks += loader.load_and_split()
-                        os.unlink(temp_file.name)
-                    except Exception as e:
-                        st.error(f"Error loading and splitting the PDF: {e}")
+    if prompt := st.chat_input("Ask a question about the uploaded or selected PDFs"):
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        st.chat_message("user").write(prompt)
+        
+        with st.spinner("Thinking..."):  # Display spinner while processing
+            llm_instance = initialize_llm_model()
+            if not llm_instance:
+                st.write("Error initializing the LLM model.")
+            else:
+                chunks = load_and_split_pdf(uploaded_file, selected_example_pdfs)
+                embedding_instance = initialize_embeddings()
+                if not embedding_instance:
+                    st.write("Error initializing embeddings.")
+                else:
+                    answer = qa_with_sources(llm_instance, chunks, embedding_instance, prompt)
+                    st.write(answer["answer"])
+                    st.session_state.messages.append({"role": "assistant", "content": answer["answer"]})
+with Pdf_reader_tab:
+    if Pdf_reader_tab:
+        st.write("PDF Reader")
+        pdf_file = st.file_uploader("Upload PDF file", type=('pdf'))
 
-                if selected_example_pdfs != "Upload your own data":
-                    try:
-                        pdf_path = example_pdfs[selected_example_pdfs]
-                        loader = PyPDFLoader(pdf_path)
-                        chunks += loader.load_and_split()
-                    except Exception as e:
-                        st.error(f"Error loading and splitting the example PDF {pdf_path}: {e}")
-
-                # Initializing embeddings
-                try:
-                    embedding_function = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
-                except Exception as e:
-                    st.error(f"Error initializing embeddings: {e}")
-                    embedding_function = None
-
-                # Initializing Chroma database
-                try:
-                    if embedding_function:
-                        db = Chroma.from_documents(chunks, embedding_function)
-                    else:
-                        db = None
-                except Exception as e:
-                    st.error(f"Error initializing Chroma database: {e}")
-                    db = None
-
-                # Retrieving documents
-                try:
-                    if db:
-                        retriever = db.as_retriever(search_kwargs={"k": 2})
-                        retriever.invoke(prompt)
-                    else:
-                        retriever = None
-                except Exception as e:
-                    st.error(f"Error retrieving documents: {e}")
-                    retriever = None
-
-                # Initializing LLM model
-                try:
-                    llm = ChatOpenAI(
-                        openai_api_key=Open_api_token,
-                        model_name="gpt-3.5-turbo",
-                        temperature=0.0,
-                        max_tokens=300
-                    )
-                except Exception as e:
-                    st.error(f"Error initializing OpenAI model: {e}")
-                    llm = None
-
-                # Processing QA with sources
-                try:
-                    if llm and retriever:
-                        qa_with_sources = RetrievalQAWithSourcesChain.from_chain_type(llm=llm, chain_type="stuff", retriever=retriever)
-                        antwort = qa_with_sources.invoke(prompt)
-                    else:
-                        antwort = {"answer": "Error initializing components."}
-                except Exception as e:
-                    st.error(f"Error processing QA: {e}")
-                    antwort = {"answer": f"Error processing request: {e}"}
-
-            with st.chat_message("assistant"):
-                st.write(antwort["answer"])
-                st.session_state.messages.append({"role": "assistant", "content": antwort["answer"]})
-
-with pdf_reader_tab:
-    st.write("PDF Reader")
-    
-    if selected_example_pdfs == "Upload your own data" and uploaded_file is not None:
-        # Read the binary data from the uploaded file
-        binary_data = uploaded_file.read()
-        pdf_viewer(input=binary_data, width=700)
-    
-    elif selected_example_pdfs == "Short Stories":
-        pdf_path_short_stories = "/Users/riccardo/Desktop/Github/LLM_RAG/16_Kurzgeschichten.pdf"
-        with open(pdf_path_short_stories, "rb") as f:
-            binary_data = f.read()
-        pdf_viewer(input=binary_data, width=700)    
-    
-    elif selected_example_pdfs == "Marketing Results":
-        pdf_path_marketing = "/Users/riccardo/Desktop/Github/LLM_RAG/s12943-023-01867-y.pdf"
-        with open(pdf_path_marketing, "rb") as f:
-            binary_data = f.read()
-        pdf_viewer(input=binary_data, width=700)
-    
-    else:
-        st.write("Please upload a PDF or select an example PDF.")
- 
+        if pdf_file:
+            binary_data = pdf_file.getvalue()
+            # pdf_viewer(input=binary_data, width=700)  # You would implement this function to view PDF content
