@@ -34,7 +34,6 @@ st.write("""This is a simple implementation of OpenAI's
           of tasks, such as question answering, 
           summarization, and translation.""")
 
-chatbot_tab, Pdf_reader_tab = st.tabs(["Chatbot", "PDF Reader"])
 
 # Function to load and split PDFs
 def load_and_split_pdf(uploaded_file, selected_example):
@@ -124,36 +123,23 @@ def qa_with_sources(llm_instance, chunks, embedding_instance, query):
         return {"answer": f"Error processing request: {e}"}
 
 # Main execution
-if chatbot_tab:
-    os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
-    # Show file uploader only if "Upload your own data" is selected
-    uploaded_file = None
-    if selected_example_pdfs == "Upload your own data":
-        uploaded_file = st.file_uploader("Upload a PDF file", type=["pdf"])
-        if "messages" not in st.session_state:
-            st.session_state.messages = []
-        with st.chat_message("assistant"):
-            st.markdown("""
-                        Welcome to Prime! 🤖 I am your personal document detective! Send me your PDFs and I will put them through their paces. From 
-                        - "What's this about?" to 
-                        - "What are the key points?" and even 
-                        - "What's the scoop on topic X?" - 
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
-                        I'm your man! 🕵️‍♂️ Uh, your bot. Never mind, you know. Let us crack your PDFs! 💼
-                        Don't forget to upload a PDF or select an example PDF! 📎
-                        """)
-    else:
-        with st.chat_message("assistant"):
-            st.markdown("""
-                        Welcome to Prime! 🤖 I am your personal document detective! Send me your PDFs and I will put them through their paces. From 
-                        - "What's this about?" to 
-                        - "What are the key points?" and even 
-                        - "What's the scoop on topic X?" - 
+# Show file uploader only if "Upload your own data" is selected
+uploaded_file = None
+if selected_example_pdfs == "Upload your own data":
+    uploaded_file = st.file_uploader("Upload a PDF file", type=["pdf"])
+    if "messages" not in st.session_state:
+        st.session_state.messages = []
+    with st.chat_message("assistant"):
+        st.markdown("""
+                    Welcome to Prime! 🤖 I am your personal document detective! Send me your PDFs and I will put them through their paces. From 
+                    Short stories question answering to 
 
-                        I'm your man! 🕵️‍♂️ Uh, your bot. Never mind, you know. Let us crack your PDFs! 💼
-                        Don't forget to upload a PDF or select an example PDF! 📎
-                        """)
+                    I'm your man! 🕵️‍♂️ Uh, your bot. Never mind, you know. Let us crack your PDFs! 💼
+                    Don't forget to upload a PDF or select an example PDF! 📎
+                    """)
 
     if "messages" not in st.session_state:
         st.session_state.messages = []
@@ -163,7 +149,7 @@ if chatbot_tab:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
             
-    if prompt := st.chat_input("Ask a question about the uploaded or selected PDFs"):
+    if prompt := st.chat_input("Ask a question about the uploaded or selected PDFs", key="chat_input"):
         st.session_state.messages.append({"role": "user", "content": prompt})
         st.chat_message("user").write(prompt)
         
@@ -180,11 +166,82 @@ if chatbot_tab:
                     answer = qa_with_sources(llm_instance, chunks, embedding_instance, prompt)
                     st.write(answer["answer"])
                     st.session_state.messages.append({"role": "assistant", "content": answer["answer"]})
-with Pdf_reader_tab:
-    if Pdf_reader_tab:
-        st.write("PDF Reader")
-        pdf_file = st.file_uploader("Upload PDF file", type=('pdf'))
+    
+        
+if selected_example_pdfs == "Short Stories":
+    with st.chat_message("assistant"):
+        st.markdown("""
+                    Welcome to Prime! 🤖 I am your personal document detective! Send me your PDFs and I will put them through their paces. From 
+                    Short stories question answering to 
 
-        if pdf_file:
-            binary_data = pdf_file.getvalue()
-            # pdf_viewer(input=binary_data, width=700)  # You would implement this function to view PDF content
+                    I'm your man! 🕵️‍♂️ Uh, your bot. Never mind, you know. Let us crack your PDFs! 💼
+                    Don't forget to upload a PDF or select an example PDF! 📎
+                    """)
+
+    if "messages" not in st.session_state:
+        st.session_state.messages = []
+
+    # Display chat messages from history on app rerun
+    for message in st.session_state.messages:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
+            
+    if prompt := st.chat_input("Ask a question about the uploaded or selected PDFs", key="chat_input"):
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        st.chat_message("user").write(prompt)
+        
+        with st.spinner("Thinking..."):  # Display spinner while processing
+            llm_instance = initialize_llm_model()
+            if not llm_instance:
+                st.write("Error initializing the LLM model.")
+            else:
+                chunks = load_and_split_pdf(uploaded_file, selected_example_pdfs)
+                embedding_instance = initialize_embeddings()
+                if not embedding_instance:
+                    st.write("Error initializing embeddings.")
+                else:
+                    answer = qa_with_sources(llm_instance, chunks, embedding_instance, prompt)
+                    st.write(answer["answer"])
+                    st.session_state.messages.append({"role": "assistant", "content": answer["answer"]})
+    
+
+if selected_example_pdfs == "Marketing Results":
+    with st.chat_message("assistant"):
+        st.markdown("""
+                    Welcome to Prime! 🤖 I am your personal document detective! Send me your PDFs and I will put them through their paces. From 
+                    - What are the key characteristics of cancer stem-like cells (CSCs) that make them challenging to target in cancer treatment?
+
+                    - How do CSCs contribute to tumor growth, metastasis, and resistance to traditional cancer therapies?
+                    
+                    - What novel therapeutic strategies are being explored to specifically target and eliminate CSCs in cancer patients?
+
+                    I'm your man! 🕵️‍♂️ Uh, your bot. Never mind, you know. Let us crack your PDFs! 💼
+                    Don't forget to upload a PDF or select an example PDF! 📎
+                    """)
+
+    if "messages" not in st.session_state:
+        st.session_state.messages = []
+
+    # Display chat messages from history on app rerun
+    for message in st.session_state.messages:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
+            
+    if prompt := st.chat_input("Ask a question about the uploaded or selected PDFs", key="chat_input_1"):
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        st.chat_message("user").write(prompt)
+        
+        with st.spinner("Thinking..."):  # Display spinner while processing
+            llm_instance = initialize_llm_model()
+            if not llm_instance:
+                st.write("Error initializing the LLM model.")
+            else:
+                chunks = load_and_split_pdf(uploaded_file, selected_example_pdfs)
+                embedding_instance = initialize_embeddings()
+                if not embedding_instance:
+                    st.write("Error initializing embeddings.")
+                else:
+                    answer = qa_with_sources(llm_instance, chunks, embedding_instance, prompt)
+                    st.write(answer["answer"])
+                    st.session_state.messages.append({"role": "assistant", "content": answer["answer"]})
+                    
