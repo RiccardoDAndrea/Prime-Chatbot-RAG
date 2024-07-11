@@ -134,11 +134,13 @@ if selected_example_pdfs == "Upload your own data":
         st.session_state.messages = []
     with st.chat_message("assistant"):
         st.markdown("""
-                    Welcome to Prime! 🤖 I am your personal document detective! Send me your PDFs and I will put them through their paces. From 
-                    Short stories question answering to 
+                    Welcome to Prime! 🤖 I am your personal document detective! Send me your PDFs and I will put them through their paces. From
 
-                    I'm your man! 🕵️‍♂️ Uh, your bot. Never mind, you know. Let us crack your PDFs! 💼
-                    Don't forget to upload a PDF or select an example PDF! 📎
+                    - What is addressed in the uploaded document
+                    - Can you summarize the document
+                    - What are the key takeaways from the document
+
+                    I'm your man! 🕵️‍♂️ Uh, your bot. Never mind, you know. Let us crack your PDFs! 💼 Don't forget to upload a PDF! 📎
                     """)
 
     if "messages" not in st.session_state:
