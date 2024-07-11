@@ -13,15 +13,15 @@ from streamlit_pdf_viewer import pdf_viewer
 Open_api_token = st.sidebar.text_input("OpenAI API Token", "sk-", type="password")
 
 example_pdfs = {
-    "Short Stories": "/Users/riccardo/Desktop/Github/LLM_RAG/16_Kurzgeschichten.pdf",
-    "Marketing Results": "/Users/riccardo/Desktop/Github/LLM_RAG/s12943-023-01867-y.pdf",
+    "The economic potential of generative AI": "/Users/riccardo/Desktop/Github/LLM_RAG/PDF_docs/the-economic-potential-of-generative-ai-the-next-productivity-frontier-vf.pdf",
+    "Overcoming huge challenges in cancer": "/Users/riccardo/Desktop/Github/LLM_RAG/PDF_docs/WIREs Mechanisms of Disease - 2013 - Roukos - Genome network medicine  innovation to overcome huge challenges in cancer.pdf",
 }
 
 # Streamlit Main
 st.sidebar.title("OpenAI RAG")
 
 st.sidebar.markdown("### Example PDFs")
-selected_example_pdfs = st.sidebar.selectbox('Choose your PDF example', options=["Short Stories", "Marketing Results", "Upload your own data"])
+selected_example_pdfs = st.sidebar.selectbox('Choose your PDF example', options=["The economic potential of generative AI", "Overcoming huge challenges in cancer", "Upload your own data"])
 
 st.title("OpenAI RAG")
 
@@ -168,7 +168,7 @@ if selected_example_pdfs == "Upload your own data":
                     st.session_state.messages.append({"role": "assistant", "content": answer["answer"]})
     
         
-if selected_example_pdfs == "Short Stories":
+if selected_example_pdfs == "The economic potential of generative AI":
     with st.chat_message("assistant"):
         st.markdown("""
                     Welcome to Prime! 🤖 I am your personal document detective! Send me your PDFs and I will put them through their paces. From 
@@ -201,23 +201,31 @@ if selected_example_pdfs == "Short Stories":
                     st.write("Error initializing embeddings.")
                 else:
                     answer = qa_with_sources(llm_instance, chunks, embedding_instance, prompt)
-                    st.write(answer["answer"])
-                    st.session_state.messages.append({"role": "assistant", "content": answer["answer"]})
+                    with st.chat_message("assistant"):
+                        st.write(answer["answer"])
+                        st.session_state.messages.append({"role": "assistant", "content": answer["answer"]})
     
 
-if selected_example_pdfs == "Marketing Results":
+if selected_example_pdfs == "Overcoming huge challenges in cancer":
+
     with st.chat_message("assistant"):
-        st.markdown("""
-                    Welcome to Prime! 🤖 I am your personal document detective! Send me your PDFs and I will put them through their paces. From 
-                    - What are the key characteristics of cancer stem-like cells (CSCs) that make them challenging to target in cancer treatment?
+        st.markdown(""" 
+                Welcome to Prime! 🤖 I'm your personal document detective! Send me your PDFs, and together, we'll unravel the mysteries of:
 
-                    - How do CSCs contribute to tumor growth, metastasis, and resistance to traditional cancer therapies?
-                    
-                    - What novel therapeutic strategies are being explored to specifically target and eliminate CSCs in cancer patients?
+                - How has the post-ENCODE era shaped biomedical research in understanding gene expression and cellular processes?
+                
+                - What drawbacks do traditional diagnostics and therapeutics face in treating advanced cancer, and how can network-based approaches pave the way for solutions?
+                
+                - How do next-generation sequencing technologies empower personalized cancer treatment by mapping a patient's unique mutational landscape?
 
-                    I'm your man! 🕵️‍♂️ Uh, your bot. Never mind, you know. Let us crack your PDFs! 💼
-                    Don't forget to upload a PDF or select an example PDF! 📎
-                    """)
+                I'm here to break it down for you! 🕵️‍♂️ Well, your bot is. Let's dive into those PDFs and make complex scientific articles accessible and understandable for everyone! 💼 Don't forget to upload a PDF or select an example PDF! 📎
+
+                ---
+
+                #### Reference:
+                Roukos, D. H. (2014). Genome network medicine: innovation to overcome huge challenges in cancer therapy. *Wiley Interdisciplinary Reviews: Systems Biology and Medicine*, 6(2), 201-208.
+
+                """)
 
     if "messages" not in st.session_state:
         st.session_state.messages = []
@@ -241,7 +249,8 @@ if selected_example_pdfs == "Marketing Results":
                 if not embedding_instance:
                     st.write("Error initializing embeddings.")
                 else:
-                    answer = qa_with_sources(llm_instance, chunks, embedding_instance, prompt)
-                    st.write(answer["answer"])
-                    st.session_state.messages.append({"role": "assistant", "content": answer["answer"]})
+                    with st.chat_message("assistant"):
+                        answer = qa_with_sources(llm_instance, chunks, embedding_instance, prompt)
+                        st.write(answer["answer"])
+                        st.session_state.messages.append({"role": "assistant", "content": answer["answer"]})
                     
