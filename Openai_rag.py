@@ -173,9 +173,14 @@ if selected_example_pdfs == "Upload your own data":
 if selected_example_pdfs == "The economic potential of generative AI":
     with st.chat_message("assistant"):
         st.markdown("""
+                    
                     Welcome to Prime! 🤖 I am your personal document detective! Send me your PDFs and I will put them through their paces. From 
                     Short stories question answering to 
 
+                    - How can companies benefit from generative AI, what measures could they take?
+                    - What are some specific use cases of generative AI in the retail and banking industries?
+                    - How can businesses and society prepare for the implications of integrating generative AI into their operations?
+                    
                     I'm your man! 🕵️‍♂️ Uh, your bot. Never mind, you know. Let us crack your PDFs! 💼
                     Don't forget to upload a PDF or select an example PDF! 📎
                     """)
