@@ -184,19 +184,25 @@ if selected_example_pdfs == "Upload your own data":
     
         
 if selected_example_pdfs == "The economic potential of generative AI":
+    st.sidebar.write("The document can be viewed under the following link")
+    st.sidebar.info("Source documents: [McKinsey & Company](https://www.mckinsey.de/~/media/mckinsey/locations/europe%20and%20middle%20east/deutschland/news/presse/2023/2023-06-14%20mgi%20genai%20report%2023/the-economic-potential-of-generative-ai-the-next-productivity-frontier-vf.pdf)")
     with st.chat_message("assistant"):
         st.markdown("""
+            Welcome to Prime! 🤖 I am your personal document detective! Send me your PDFs and I will put them through their paces.
+            Let's dive into the study by McKinsey & Company on the economic potential of generative AI. 📈🤖
                     
-                    Welcome to Prime! 🤖 I am your personal document detective! Send me your PDFs and I will put them through their paces. From 
-                    Short stories question answering to 
-
-                    - How can companies benefit from generative AI, what measures could they take?
-                    - What are some specific use cases of generative AI in the retail and banking industries?
-                    - How can businesses and society prepare for the implications of integrating generative AI into their operations?
-                    
-                    I'm your man! 🕵️‍♂️ Uh, your bot. Never mind, you know. Let us crack your PDFs! 💼
-                    Don't forget to upload a PDF or select an example PDF! 📎
-                    """)
+            📚 I've already prepared a few questions to get us started:
+            
+            - Can you summarize the document comprehensively?
+            - What are some specific use cases of generative AI in the retail and banking industries?
+            - How can businesses and society prepare for the implications of integrating generative AI into their operations?
+            What new quality checks must companies implement when transitioning from human labor to generative AI, particularly 
+            regarding content generation like emails or assisting processes such as drug discovery? How can transparency and 
+            traceability be ensured in generative AI systems to minimize risks and ensure quality?
+            
+            I'm your man! 🕵️‍♂️ Uh, your bot. Never mind, you know. Let us crack your PDFs! 💼
+            Don't forget to upload a PDF or select an example PDF! 📎
+            """)
 
     if "messages" not in st.session_state:
         st.session_state.messages = []
@@ -227,7 +233,9 @@ if selected_example_pdfs == "The economic potential of generative AI":
     
 
 if selected_example_pdfs == "Overcoming huge challenges in cancer":
-
+    st.sidebar.write("The document can be viewed under the following link")
+    st.sidebar.info("Source documents: [United States National Library of Medicine](https://wires.onlinelibrary.wiley.com/doi/10.1002/wsbm.1254)")
+    
     with st.chat_message("assistant"):
         st.markdown(""" 
         🌟 Welcome to Prime! 🤖 I'm your personal document detective! Feel free to ask me anything about the groundbreaking work of Dr. Roukos, who explored innovative approaches to curing cancer. 
