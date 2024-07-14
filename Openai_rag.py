@@ -18,21 +18,34 @@ example_pdfs = {
 }
 
 # Streamlit Main
-st.sidebar.title("OpenAI RAG")
+st.sidebar.title("Prime-Chatbot 🤖")
 
 st.sidebar.markdown("### Example PDFs")
 selected_example_pdfs = st.sidebar.selectbox('Choose your PDF example', options=["The economic potential of generative AI", "Overcoming huge challenges in cancer", "Upload your own data"])
 
-st.title("OpenAI RAG")
+st.title("Prime-Chatbot 🤖")
+st.warning("To get started enter your API Token in the Sidebar.")
+st.write("""
+        This is a simple implementation of OpenAI's Retrieval Augmented Generation (RAG) model. 🧠 The model can generate long-form answers 
+        to questions and is suitable for various tasks such as question answering, summarization, and translation. 📝🌐🔍
 
-st.write("""This is a simple implementation of OpenAI's 
-          Retrieval Augmented Generation (RAG) model. 
-          The model is trained on a combination of 
-          supervised and reinforcement learning. 
-          It is capable of generating long-form answers 
-          to questions, and can be used for a variety 
-          of tasks, such as question answering, 
-          summarization, and translation.""")
+        > To get started, two different documents are provided, but you can also upload your own PDF documents. ⬆️
+
+        1. The first document, "The Economic Potential of Generative AI," is an assessment by McKinsey & Company exploring the potential of 
+        AI in the commercial sector. 📈🤖
+
+        2. The second document, "Overcoming Huge Challenges in Cancer," discusses innovative approaches to combating cancer. 💊🧬""")
+
+
+st.expander("About Prime-Chatbot").info("""
+                                        The goal of the Prime-Chatbot 🤖 is to efficiently retrieve 
+                                        information and make complex scientific work understandable 
+                                        to everyone through interactive queries. Currently, the chatbot 
+                                        exhibits inconsistencies in its responses and struggles to answer
+                                        questions about documents accurately. 📄❓ However, when questions 
+                                        are precisely formulated, the model provides solid answers. 💬👍 
+                                        Nevertheless, there is still much fine-tuning needed to elevate its performance to a 'good' level. 🔧✨""")
+
 st.divider()
 
 # Function to load and split PDFs
@@ -106,8 +119,8 @@ def initialize_llm_model():
 def qa_with_sources(llm_instance, chunks, embedding_instance, query):
     try:
         text_splitter_instance = RecursiveCharacterTextSplitter(
-            chunk_size=200,
-            chunk_overlap=50,
+            chunk_size=50,
+            chunk_overlap=10,
             length_function=len,
         )
         db = initialize_chroma(chunks, embedding_instance)
@@ -217,22 +230,26 @@ if selected_example_pdfs == "Overcoming huge challenges in cancer":
 
     with st.chat_message("assistant"):
         st.markdown(""" 
-                Welcome to Prime! 🤖 I'm your personal document detective! Send me your PDFs, and together, we'll unravel the mysteries of:
+        🌟 Welcome to Prime! 🤖 I'm your personal document detective! Feel free to ask me anything about the groundbreaking work of Dr. Roukos, who explored innovative approaches to curing cancer. 
+        Together, we'll unravel the complexities and gain a deeper understanding of this fascinating subject.
+        
+        📚 I've already prepared a few questions to get us started:
 
-                - How has the post-ENCODE era shaped biomedical research in understanding gene expression and cellular processes?
-                
-                - What drawbacks do traditional diagnostics and therapeutics face in treating advanced cancer, and how can network-based approaches pave the way for solutions?
-                
-                - How do next-generation sequencing technologies empower personalized cancer treatment by mapping a patient's unique mutational landscape?
+        - How has the post-ENCODE era influenced biomedical research in understanding gene expression and cellular processes?
+        
+        - What challenges do traditional diagnostics and therapeutics face in treating advanced cancer, and how can network-based approaches offer new solutions?
+        
+        - How do next-generation sequencing technologies revolutionize personalized cancer treatment by mapping a patient's unique mutational landscape?
 
-                I'm here to break it down for you! 🕵️‍♂️ Well, your bot is. Let's dive into those PDFs and make complex scientific articles accessible and understandable for everyone! 💼 Don't forget to upload a PDF or select an example PDF! 📎
+        🕵️‍♂️ I'm here to make complex scientific articles accessible and understandable for everyone! 💼 Don't forget to upload a PDF or select an example PDF to get started! 📎
 
-                ---
+        ---
 
-                #### Reference:
-                Roukos, D. H. (2014). Genome network medicine: innovation to overcome huge challenges in cancer therapy. *Wiley Interdisciplinary Reviews: Systems Biology and Medicine*, 6(2), 201-208.
+        #### Reference:
+        Roukos, D. H. (2014). Genome network medicine: innovation to overcome huge challenges in cancer therapy. *Wiley Interdisciplinary Reviews: Systems Biology and Medicine*, 6(2), 201-208.
 
-                """)
+        """)
+
 
     if "messages" not in st.session_state:
         st.session_state.messages = []
