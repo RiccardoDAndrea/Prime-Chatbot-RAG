@@ -13,13 +13,13 @@ RUN apt-get update && apt-get install -y \
     || { cat /var/log/apt/term.log; exit 1; }
 
 
-RUN git clone https://github.com/RiccardoDAndrea/LLM_RAG.git .
+RUN git clone https://github.com/RiccardoDAndrea/Prime-Chatbot-RAG.git .
 
-RUN git checkout docker
+#RUN git checkout branch_name
 
 RUN pip3 install -r requirements.txt
 
-EXPOSE 8501
+EXPOSE 8501:8901
 
 HEALTHCHECK CMD curl --fail http://localhost:8501/_stcore/health
 
