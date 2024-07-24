@@ -64,7 +64,7 @@ docker run -p 8501:8501 app
 
 Docker verwendet standardmäßig den Build-Cache, um den Build-Vorgang zu beschleunigen. Wenn keine Änderungen im Dockerfile oder den darin referenzierten Dateien vorhanden sind, wird das Image aus dem Cache wieder aufgebaut, anstatt alles neu zu erstellen. Du kannst das Cache-Verhalten ändern, indem du das --no-cache Flag verwendest:
 ```
-docker build --no-cache -t streamlit .
+docker build --no-cache -t your_name_for_the_procjet .
 ````
 
 ### auflistungen den Images
