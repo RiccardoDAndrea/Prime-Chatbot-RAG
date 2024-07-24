@@ -19,7 +19,7 @@ RUN git clone https://github.com/RiccardoDAndrea/Prime-Chatbot-RAG.git .
 
 RUN pip3 install -r requirements.txt
 
-EXPOSE 8501:8901
+EXPOSE 8501
 
 HEALTHCHECK CMD curl --fail http://localhost:8501/_stcore/health
 
