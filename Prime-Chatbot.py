@@ -79,6 +79,7 @@ def initialize_embeddings(Open_api_token=Open_api_token):
         embedding_function = OpenAIEmbeddings(model="text-embedding-3-large", api_key=Open_api_token)
         return embedding_function
     except Exception as e:
+        st.write(e)
         st.error(f"Error initializing embeddings: {e}")
         return None
 
@@ -88,7 +89,9 @@ def initialize_chroma(chunks, embedding_function):
         db = Chroma.from_documents(chunks, embedding_function)
         return db
     except Exception as e:
-        st.error(f"Error initializing Chroma database: {e}")
+        if "Error code: 401 - {'error': {'message': 'Incorrect API key provided: sk-. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}" in str(e):
+            st.info("Invalid API key provided. Please enter a valid OpenAI API key.")
+            #st.error(f"Error initializing Chroma database: {e}")
         return None
 
 # Function to retrieve documents
@@ -125,7 +128,7 @@ def qa_with_sources(llm_instance, chunks, embedding_instance, query):
         )
         db = initialize_chroma(chunks, embedding_instance)
         if not db:
-            return {"answer": "Error initializing Chroma database."}
+            return {"answer": "Ups, something went wrong. Please check if you API Code is valid."}
         retriever_instance = retrieve_documents(db, query)
         if not retriever_instance:
             return {"answer": "Error retrieving documents."}
@@ -175,14 +178,17 @@ if selected_example_pdfs == "Upload your own data":
             if not llm_instance:
                 st.write("Error initializing the LLM model.")
             else:
-                chunks = load_and_split_pdf(uploaded_file, selected_example_pdfs)
-                embedding_instance = initialize_embeddings()
-                if not embedding_instance:
-                    st.write("Error initializing embeddings.")
-                else:
-                    answer = qa_with_sources(llm_instance, chunks, embedding_instance, prompt)
-                    st.write(answer["answer"])
-                    st.session_state.messages.append({"role": "assistant", "content": answer["answer"]})
+                try:
+                    chunks = load_and_split_pdf(uploaded_file, selected_example_pdfs)
+                    embedding_instance = initialize_embeddings()
+                    if not embedding_instance:
+                        st.write("Error initializing embeddings.")
+                    else:
+                        answer = qa_with_sources(llm_instance, chunks, embedding_instance, prompt)
+                        st.write(answer["answer"])
+                        st.session_state.messages.append({"role": "assistant", "content": answer["answer"]})
+                except KeyError as e:
+                    st.info("Ups, something went wrong. Please upload a PDF file. You can find it on the top of the Page. 📎")
     
         
 if selected_example_pdfs == "The economic potential of generative AI":
