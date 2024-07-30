@@ -6,10 +6,23 @@ from langchain_openai import ChatOpenAI
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import Chroma
 from langchain.chains import RetrievalQAWithSourcesChain
-from langchain_community.embeddings import HuggingFaceEmbeddings
+#from langchain_community.embeddings import HuggingFaceEmbeddings
 from tempfile import NamedTemporaryFile
-from streamlit_pdf_viewer import pdf_viewer
+#from streamlit_pdf_viewer import pdf_viewer
 from langchain_community.embeddings import OpenAIEmbeddings
+
+# Define a Chat Prompt Template
+chat_prompt_template = """
+Your name is Prime-Chatbot 🤖. You are designed to efficiently retrieve information and make complex scientific work understandable to everyone. 
+You provide accurate, clear, and concise responses to user queries, leveraging your access to various documents and data sources. 
+Your current task is to assist users with questions about the provided documents and any uploaded PDFs.
+
+Be friendly, professional, and informative in your responses. If a user asks something unrelated to the documents, kindly redirect them back to the context of the documents.
+"""
+
+
+
+
 Open_api_token = st.sidebar.text_input("OpenAI API Token", "sk-", type="password")
 
 example_pdfs = {
@@ -111,7 +124,9 @@ def initialize_llm_model(llm_model= llm_model):
             openai_api_key=Open_api_token,
             model_name=llm_model,
             temperature=0.0,
-            max_tokens=1000
+            max_tokens=1000,
+            prompt=chat_prompt_template
+
         )
         return llm
     except Exception as e:
