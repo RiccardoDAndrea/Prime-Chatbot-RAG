@@ -1,6 +1,6 @@
 # Prime-Chatbot 🤖
 
-Prime-Chatbot is an innovative application that enables users to integrate their own documents as a knowledge source for the Large Language Model (LLM) by using a Retrieval Augmented Generation (RAG) function. The chatbot is based on the powerful GPT-3.5-turbo model and helps to make complex scientific content accessible and understandable.
+Prime-Chatbot is an innovative application that enables users to integrate their own documents as a knowledge source for the Large Language Model (LLM) by using a Retrieval Augmented Generation (RAG) function. The chatbot is based on the powerful GPT-3.5-turbo and GPT-4o model and helps to make complex scientific content accessible and understandable.
 
 ## Functions
 
