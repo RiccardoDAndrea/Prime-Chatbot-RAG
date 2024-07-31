@@ -138,8 +138,9 @@ def qa_with_sources(llm_instance, chunks, embedding_instance, query):
         st.error(f"Error processing QA: {e}")
         return {"answer": f"Error processing request: {e}"}
 
-# Main execution
-
+########################################################################
+################## M A I N _ E X E C U T I O N #########################
+########################################################################
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 
