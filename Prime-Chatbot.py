@@ -10,6 +10,8 @@ from langchain_community.embeddings import HuggingFaceEmbeddings
 from tempfile import NamedTemporaryFile
 from streamlit_pdf_viewer import pdf_viewer
 from langchain_community.embeddings import OpenAIEmbeddings
+
+
 Open_api_token = st.sidebar.text_input("OpenAI API Token", "sk-", type="password")
 
 example_pdfs = {
