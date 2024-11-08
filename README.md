@@ -2,6 +2,17 @@
 
 Prime-Chatbot is an innovative application that enables users to integrate their own documents as a knowledge source for the Large Language Model (LLM) by using a Retrieval Augmented Generation (RAG) function. The chatbot is based on the powerful GPT-3.5-turbo and GPT-4o model and helps to make complex scientific content accessible and understandable.
 
+
+
+<div style="margin-bottom: 20px;">
+    <img src="docs/Pic_for_doc/HomePage.png" alt="HomePage" width="600">
+</div>
+<div style="margin-bottom: 20px;">
+    <img src="docs/Pic_for_doc/Answer_of_question_from_thePDF.png" alt="Answer to a Question from a Document" width="300">
+</div>
+
+
+
 ## Functions
 
 - **Integration of own documents:** Add your documents to provide specific knowledge content for the chatbot.
@@ -45,6 +56,6 @@ streamlit run Prime-Chatbot.py
 Confidential PDF documents are neither saved nor cached. However, if there are any concerns, the algorithm is publicly available in the appendix and can be checked.
 
 ### Contact
-If you have any questions or feedback, please do not hesitate to contact us. We look forward to your feedback and are happy to provide support!
+If you have any questions or feedback, please do not hesitate to contact me. We look forward to your feedback and are happy to provide support!
 
 
