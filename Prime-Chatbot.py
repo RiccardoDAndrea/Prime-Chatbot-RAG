@@ -21,7 +21,9 @@ example_pdfs = {
 
 # Streamlit Main
 st.sidebar.title("Prime-Chatbot 🤖")
+
 llm_model = st.sidebar.selectbox("Select the LLM model", options=["gpt-4o", "gpt-3.5-turbo"])
+
 st.sidebar.markdown("### Example PDFs")
 selected_example_pdfs = st.sidebar.selectbox('Choose your PDF example', options=["The economic potential of generative AI", "Overcoming huge challenges in cancer", "Upload your own data"])
 
@@ -129,8 +131,6 @@ def qa_with_sources(llm_instance, chunks, embedding_instance, query):
             length_function=len
         )
         db = initialize_chroma(chunks, embedding_instance)
-        if not db:
-            return {"answer": "Ups, something went wrong. Please check if you API Code is valid."}
         retriever_instance = retrieve_documents(db, query)
         if not retriever_instance:
             return {"answer": "Error retrieving documents."}
