@@ -2,5 +2,9 @@ llm/
 api_token.json
 
 config.yoml
+
+#venv
 myvenv
 prime
+PrimeV2
+.venv
