@@ -29,4 +29,4 @@ def ollama_vision(prompt:str, model:int):
     answer = response['message']['content']
     return model, answer
 
-print(ollama_vision(prompt=user_input, model=3))
+print(ollama_vision(prompt=user_input, model=1))
