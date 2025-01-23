@@ -2,6 +2,7 @@ llm/
 api_token.json
 
 config.yoml
+pipeline.conf
 
 #venv
 myvenv
