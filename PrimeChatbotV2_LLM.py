@@ -9,7 +9,13 @@ ollamaModel_LLMlist = ["llama3.1", "llama3.2"]
 
 def ollamaLLM_response(prompt:str, model:int):
     """
-    TODO: Desc
+    prompt:
+    ----
+    User str input to ask a question
+
+    model:int
+    ---
+    Choose from a list the model
     
     """
     response: ChatResponse = chat(model=ollamaModel_LLMlist[int], messages=[
