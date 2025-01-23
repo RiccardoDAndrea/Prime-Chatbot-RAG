@@ -86,6 +86,7 @@ def initialize_embeddings():
 def initialize_chroma(chunks, embedding_function):
     try:
         db = Chroma.from_documents(chunks, embedding_function)
+        print(db)
         return db
     except Exception as e:
         st.error(f"Error initializing Chroma database: {e}")
