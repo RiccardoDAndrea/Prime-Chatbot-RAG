@@ -13,9 +13,8 @@ def ollamaLLM_response(prompt:str, model:int):
     ----
     User str input to ask a question
 
-    model:int
-    ---
-    Choose from a list the model
+    model:int 
+    --- Choose from a list the model
     
     """
     response: ChatResponse = chat(model=ollamaModel_LLMlist[int], messages=[
