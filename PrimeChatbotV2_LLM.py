@@ -1,30 +1,48 @@
-import ollama 
+import ollama
 from ollama import chat
 from ollama import ChatResponse
 
-
+# List of available models
 ollamaModel_LLMlist = ["llama3.1", "llama3.2"]
 
-
-
-def ollamaLLM_response(prompt:str, model:int):
+def ollamaLLM_response(prompt: str, model: int) -> str:
     """
-    prompt:
-    ----
-    User str input to ask a question
+    Generate a response using a selected LLM model.
 
-    model:int 
-    --- Choose from a list the model
-    
+    Parameters:
+    -----------
+    prompt : str
+        User input as a question or instruction.
+    model : int
+        Index of the model to use from ollamaModel_LLMlist.
+
+    Returns:
+    --------
+    str
+        The response from the model.
+
     """
-    response: ChatResponse = chat(model=ollamaModel_LLMlist[int], messages=[
-    {
-        'role': 'user',
-        'content': f'{prompt}',
-    },
-    ])
-    answer = response['message']['content']
-    # or access fields directly from the response object
+    # Get the model name
+    selected_model = ollamaModel_LLMlist[model]
+
+    # Chat with the selected model
+    response: ChatResponse = chat(
+        model=selected_model,
+        messages=[
+            {
+                "role": "user",
+                "content": f"""
+                You are a helpful Assistant that starts every answer with a funny Joke.
+                {prompt}
+                """,
+            },
+        ],
+    )
+
+    # Extract the response content
+    answer = response.message['content']
     return answer
 
-ollamaModelvision_list = ["llava","llama3.2-vision"]
+
+# Example usage
+print(ollamaLLM_response(prompt="come estas?", model=0))
