@@ -11,8 +11,14 @@ user_input = "What is strange about this picture"
 
 def ollama_vision(prompt:str, model:int):
     """
-    TODO: Desc
-    
+    prompt:
+    ---
+    Is the user question for the Chatbot 
+
+    model:
+    ---
+    int for the Ollama models
+   
     """
     with open('/run/media/riccardodandrea/Ricca_Data/ArmoredEye/Main_battle_tanks/Russia/T_90/T_90_40.jpg', 'rb') as file:
         response = ollama.chat(
