@@ -66,22 +66,22 @@ messages = [
     },
     ]
 
-while True:
-  user_input = input('Chat with history: ')
-  response = chat(
-    'llama3.2',
-    messages=messages
-    + [
-      {'role': 'user', 'content': user_input},
-    ],
-  )
+# while True:
+#   user_input = "string"
+#   response = chat(
+#     'llama3.2',
+#     messages=messages
+#     + [
+#       {'role': 'user', 'content': user_input},
+#     ],
+#   )
 
-  # Add the response to the messages to maintain the history
-  messages += [
-    {'role': 'user', 'content': user_input},
-    {'role': 'assistant', 'content': response.message.content},
-  ]
-  print(response.message.content + '\n') 
+#   # Add the response to the messages to maintain the history
+#   messages += [
+#     {'role': 'user', 'content': user_input},
+#     {'role': 'assistant', 'content': response.message.content},
+#   ]
+#   print(response.message.content + '\n') 
 
 
 

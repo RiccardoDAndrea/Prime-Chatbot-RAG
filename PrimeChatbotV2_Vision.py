@@ -5,8 +5,9 @@ from ollama import ChatResponse
 
 
 models = ollama.list()["models"]
-ollamaModelvision_list = [model["model"] for model in models] # return all downloades ollama models
 
+ollamaModelvision_list = [model["model"] for model in models] # return all downloades ollama models
+print(ollamaModelvision_list)
 user_input = "What is strange about this picture"
 
 def ollama_vision(prompt:str, model:int):
@@ -21,7 +22,7 @@ def ollama_vision(prompt:str, model:int):
    
     """
     with open('/run/media/riccardodandrea/Ricca_Data/ArmoredEye/Main_battle_tanks/Russia/T_90/T_90_40.jpg', 'rb') as file:
-        response = ollama.chat(
+        response = ollama(
             model= ollamaModelvision_list[model] ,
             messages=[
             {
@@ -35,4 +36,4 @@ def ollama_vision(prompt:str, model:int):
     answer = response['message']['content']
     return model, answer
 
-print(ollama_vision(prompt=user_input, model=1))
+#print(ollama_vision(prompt=user_input, model=1))
