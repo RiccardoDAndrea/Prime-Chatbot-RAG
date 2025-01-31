@@ -45,44 +45,35 @@ def ollamaLLM_response(prompt: str, model: int) -> str:
 #print(ollamaLLM_response(prompt="do you rember my name?", model=0))
 
 
-from ollama import chat
+messages = []
+MAX_HISTORY = 10  # Begrenze die Historie auf 10 Nachrichten
 
-messages = [
-    {
-        "role": "user",
-        "content": "Why is the sky blue",
-    },
-    {
-        "role": "assistant",
-        "content":"The sky is blue because of the way the Earths atmosphere scatters sunlight"
-    },
-    {
-        "role":"user",
-        "content": "what is the weather in Tokyo?",
-    },
-    {
-        "role": "assistant",
-        "content":"The weather in Tokoyo is typically warm and humid during the summer months, with temperatures often exceeding 30 30°C (86°F). The city experiences a rainy season from June to September, with heavy rainfall and occasional typhoons. Winter is mild, with temperatures rarely dropping below freezing. The city is known for its high-tech and vibrant culture, with many popular tourist attractions such as the Tokyo Tower, Senso-ji Temple, and the bustling Shibuya district.",
-    },
-    ]
+while True:
+    try:
+        user_input = input("You: ")  
 
-# while True:
-#   user_input = "string"
-#   response = chat(
-#     'llama3.2',
-#     messages=messages
-#     + [
-#       {'role': 'user', 'content': user_input},
-#     ],
-#   )
+        if user_input.lower() in ["exit", "quit", "bye"]:
+            print("Chat beendet. Bis zum nächsten Mal! 👋")
+            break  # Beende die Schleife
 
-#   # Add the response to the messages to maintain the history
-#   messages += [
-#     {'role': 'user', 'content': user_input},
-#     {'role': 'assistant', 'content': response.message.content},
-#   ]
-#   print(response.message.content + '\n') 
+        # Füge den neuen Nutzerinput zur Nachrichten-Historie hinzu
+        messages.append({"role": "user", "content": user_input})
 
+        # KI-Antwort generieren (Simulation durch Funktion `chat`)
+        response = chat('llama3.2', messages=messages)
+
+        # Antwort der KI zur Historie hinzufügen
+        messages.append({"role": "assistant", "content": response.message.content})
+
+        # Historie begrenzen (alte Nachrichten entfernen)
+        if len(messages) > MAX_HISTORY:
+            messages = messages[-MAX_HISTORY:]
+
+        print(f"Assistant: {response.message.content}\n")
+
+    except KeyboardInterrupt:
+        print("\nChat unterbrochen. Bis bald! 👋")
+        break
 
 
 
