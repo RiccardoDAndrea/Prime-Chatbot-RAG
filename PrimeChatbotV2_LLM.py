@@ -1,95 +1,91 @@
 import ollama
 from ollama import chat
 from ollama import ChatResponse
+from langchain_ollama import OllamaEmbeddings
+import os 
+import bs4 
+from langchain_community.document_loaders import WebBaseLoader
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_ollama import ChatOllama
+from langchain.prompts import PromptTemplate
+from langchain_core.output_parsers import StrOutputParser
+from langchain_community.vectorstores import SKLearnVectorStore
+import os
 
-# List of available models
-ollamaModel_LLMlist = ["llama3.1", "llama3.2"]
-
-def ollamaLLM_response(prompt: str, model: int) -> str:
-    """
-    Generate a response using a selected LLM model.
-
-    Parameters:
-    -----------
-    prompt : str
-        User input as a question or instruction.
-    model : int
-        Index of the model to use from ollamaModel_LLMlist.
-
-    Returns:
-    --------
-    str
-        The response from the model.
-
-    """
-    # Get the model name
-    selected_model = ollamaModel_LLMlist[model]
-
-    # Chat with the selected model
-    response: ChatResponse = chat(
-        model=selected_model,
-        messages=[
-            {
-                "role": "user",
-                "content": f"""
-                You are a helpful Assistant to every question.
-                {prompt}
-                """,
-            },
-        ],
-    )
-
-    # Extract the response content
-    answer = response.message['content']
-    return answer
-#print(ollamaLLM_response(prompt="do you rember my name?", model=0))
+os.environ['USER_AGENT'] = 'myagent'
+# List of URLs to load documents from
+urls = [
+    "<https://lilianweng.github.io/posts/2023-06-23-agent/>",
+    "<https://lilianweng.github.io/posts/2023-03-15-prompt-engineering/>",
+    "<https://lilianweng.github.io/posts/2023-10-25-adv-attack-llm/>",
+]
 
 
-messages = []
-MAX_HISTORY = 10  # Begrenze die Historie auf 10 Nachrichten
+loader = WebBaseLoader("https://python.langchain.com/docs/tutorials/rag/")
 
-while True:
-    try:
-        user_input = input("You: ")  
-
-        if user_input.lower() in ["exit", "quit", "bye"]:
-            print("Chat beendet. Bis zum nächsten Mal! 👋")
-            break  # Beende die Schleife
-
-        # Füge den neuen Nutzerinput zur Nachrichten-Historie hinzu
-        messages.append({"role": "user", "content": user_input})
-
-        # KI-Antwort generieren (Simulation durch Funktion `chat`)
-        response = chat('llama3.2', messages=messages)
-
-        # Antwort der KI zur Historie hinzufügen
-        messages.append({"role": "assistant", "content": response.message.content})
-
-        # Historie begrenzen (alte Nachrichten entfernen)
-        if len(messages) > MAX_HISTORY:
-            messages = messages[-MAX_HISTORY:]
-
-        print(f"Assistant: {response.message.content}\n")
-
-    except KeyboardInterrupt:
-        print("\nChat unterbrochen. Bis bald! 👋")
-        break
+docs = loader.load()
 
 
+# Initialize a text splitter with specified chunk size and overlap
+text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
+    chunk_size=250, chunk_overlap=0
+)
+# Split the documents into chunks
+doc_splits = text_splitter.split_documents(docs)
+print(doc_splits)
+
+# Create embeddings for documents and store them in a vector store
+vectorstore = SKLearnVectorStore.from_documents(
+    documents=doc_splits,
+    embedding = OllamaEmbeddings(model="llama3.1"),
+)
+retriever = vectorstore.as_retriever(k=4)
+
+print(retriever)
+
+# Define the prompt template for the LLM
+prompt = PromptTemplate(
+    template="""You are an assistant for question-answering tasks.
+    Use the following documents to answer the question.
+    If you don't know the answer, just say that you don't know.
+    Use three sentences maximum and keep the answer concise:
+    Question: {question}
+    Documents: {documents}
+    Answer:
+    """,
+    input_variables=["question", "documents"],
+)
 
 
+# Initialize the LLM with Llama 3.1 model
+llm = ChatOllama(
+    model="llama3.1",
+    temperature=0,
+)
 
 
+# Create a chain combining the prompt template and LLM
+rag_chain = prompt | llm | StrOutputParser()
+
+# Define the RAG application class
+class RAGApplication:
+    def __init__(self, retriever, rag_chain):
+        self.retriever = retriever
+        self.rag_chain = rag_chain
+    def run(self, question):
+        # Retrieve relevant documents
+        documents = self.retriever.invoke(question)
+        # Extract content from retrieved documents
+        doc_texts = "\\n".join([doc.page_content for doc in documents])
+        # Get the answer from the language model
+        answer = self.rag_chain.invoke({"question": question, "documents": doc_texts})
+        return answer
 
 
-
-
-
-
-
-
-
-
-
-
-
+# Initialize the RAG application
+rag_application = RAGApplication(retriever, rag_chain)
+# Example usage
+question = "What is the document about"
+answer = rag_application.run(question)
+print("Question:", question)
+print("Answer:", answer)
