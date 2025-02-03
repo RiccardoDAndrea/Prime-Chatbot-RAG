@@ -9,20 +9,23 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_ollama import ChatOllama
 from langchain.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
+from langchain_community.document_loaders import PyPDFLoader
 from langchain_community.vectorstores import SKLearnVectorStore
 import os
 
-os.environ['USER_AGENT'] = 'myagent'
-# List of URLs to load documents from
-urls = [
-    "<https://lilianweng.github.io/posts/2023-06-23-agent/>",
-    "<https://lilianweng.github.io/posts/2023-03-15-prompt-engineering/>",
-    "<https://lilianweng.github.io/posts/2023-10-25-adv-attack-llm/>",
-]
+#os.environ['USER_AGENT'] = 'myagent'
+## List of URLs to load documents from
+#urls = [
+#    "<https://lilianweng.github.io/posts/2023-06-23-agent/>",
+#    "<https://lilianweng.github.io/posts/2023-03-15-prompt-engineering/>",
+#    "<https://lilianweng.github.io/posts/2023-10-25-adv-attack-llm/>",
+#]
 
 
-loader = WebBaseLoader("https://python.langchain.com/docs/tutorials/rag/")
-
+#loader = WebBaseLoader("https://python.langchain.com/docs/tutorials/rag/")
+ 
+file_path = "PDF_docs/the-economic-potential-of-generative-ai-the-next-productivity-frontier-vf.pdf"  
+loader = PyPDFLoader(file_path)
 docs = loader.load()
 
 
@@ -32,16 +35,16 @@ text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
 )
 # Split the documents into chunks
 doc_splits = text_splitter.split_documents(docs)
-print(doc_splits)
+#print(doc_splits)
 
 # Create embeddings for documents and store them in a vector store
 vectorstore = SKLearnVectorStore.from_documents(
     documents=doc_splits,
-    embedding = OllamaEmbeddings(model="llama3.1"),
+    embedding = OllamaEmbeddings(model="llama3.2"),
 )
 retriever = vectorstore.as_retriever(k=4)
 
-print(retriever)
+#print(retriever)
 
 # Define the prompt template for the LLM
 prompt = PromptTemplate(
@@ -85,7 +88,7 @@ class RAGApplication:
 # Initialize the RAG application
 rag_application = RAGApplication(retriever, rag_chain)
 # Example usage
-question = "What is the document about"
+question = "Are they any pictures in the document if yes on which page"
 answer = rag_application.run(question)
 print("Question:", question)
 print("Answer:", answer)
