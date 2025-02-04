@@ -23,32 +23,56 @@ import os
 
 
 #loader = WebBaseLoader("https://python.langchain.com/docs/tutorials/rag/")
- 
-file_path = "PDF_docs/the-economic-potential-of-generative-ai-the-next-productivity-frontier-vf.pdf"  
-loader = PyPDFLoader(file_path)
-docs = loader.load()
+
+
+def pdfloader(file_path):
+    """
+    description: Load a PDF document from a file path 
+    """
+
+    file_path = "PDF_docs/the-economic-potential-of-generative-ai-the-next-productivity-frontier-vf.pdf"  
+    loader = PyPDFLoader(file_path)
+    docs = loader.load()
+    return loader, docs
+
+pdf, docs = pdfloader("PDF_docs/the-economic-potential-of-generative-ai-the-next-productivity-frontier-vf.pdf")
 
 
 # Initialize a text splitter with specified chunk size and overlap
-text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
-    chunk_size=250, chunk_overlap=0
-)
-# Split the documents into chunks
-doc_splits = text_splitter.split_documents(docs)
-#print(doc_splits)
+
+def chunkssplitter(chunk_size = int, chunk_overlap=int):
+        
+    text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
+        chunk_size=chunk_size, chunk_overlap=chunk_overlap
+    )
+    # Split the documents into chunks
+    doc_splits = text_splitter.split_documents(docs)
+    #print(doc_splits)
+    return doc_splits
+
+doc_splits = chunkssplitter(chunk_size= 300, chunk_overlap=50)
+
+
 
 # Create embeddings for documents and store them in a vector store
-vectorstore = SKLearnVectorStore.from_documents(
-    documents=doc_splits,
-    embedding = OllamaEmbeddings(model="llama3.2"),
-)
-retriever = vectorstore.as_retriever(k=4)
 
-#print(retriever)
+def vectorstore():
+    vectorstore = SKLearnVectorStore.from_documents(
+                documents=doc_splits,
+                embedding = OllamaEmbeddings(model="llama3.2"))
+    return vectorstore
+vectorstore = vectorstore()
+
+def retriever():
+    retriever = vectorstore.as_retriever(k=4)
+    return retriever
+
+retriever = retriever()
 
 # Define the prompt template for the LLM
 prompt = PromptTemplate(
-    template="""You are an assistant for question-answering tasks.
+    template="""
+    You are an assistant for question-answering tasks.
     Use the following documents to answer the question.
     If you don't know the answer, just say that you don't know.
     Use three sentences maximum and keep the answer concise:
@@ -61,10 +85,14 @@ prompt = PromptTemplate(
 
 
 # Initialize the LLM with Llama 3.1 model
-llm = ChatOllama(
-    model="llama3.1",
-    temperature=0,
-)
+def llm(model= str):
+
+    llm = ChatOllama(
+            model=model,
+            temperature=0)
+    return llm
+
+llm = llm(model="llama3.2")
 
 
 # Create a chain combining the prompt template and LLM
@@ -88,7 +116,7 @@ class RAGApplication:
 # Initialize the RAG application
 rag_application = RAGApplication(retriever, rag_chain)
 # Example usage
-question = "Are they any pictures in the document if yes on which page"
+question = "How product R&D could be transformed"
 answer = rag_application.run(question)
 print("Question:", question)
 print("Answer:", answer)
