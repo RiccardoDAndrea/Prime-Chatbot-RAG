@@ -35,7 +35,9 @@ def pdfloader(file_path):
     docs = loader.load()
     return loader, docs
 
-pdf, docs = pdfloader("PDF_docs/the-economic-potential-of-generative-ai-the-next-productivity-frontier-vf.pdf")
+loader, docs = pdfloader("PDF_docs/the-economic-potential-of-generative-ai-the-next-productivity-frontier-vf.pdf")
+# In docs sind alle Inhalt der Seite enthalten
+
 
 
 # Initialize a text splitter with specified chunk size and overlap
@@ -50,8 +52,7 @@ def chunkssplitter(chunk_size = int, chunk_overlap=int):
     #print(doc_splits)
     return doc_splits
 
-doc_splits = chunkssplitter(chunk_size= 300, chunk_overlap=50)
-
+doc_splits = chunkssplitter(chunk_size= 4500, chunk_overlap=300) # Seite ist auf page_lage nicht page
 
 
 # Create embeddings for documents and store them in a vector store
@@ -63,6 +64,7 @@ def vectorstore():
     return vectorstore
 vectorstore = vectorstore()
 
+
 def retriever():
     retriever = vectorstore.as_retriever(k=4)
     return retriever
@@ -71,34 +73,28 @@ retriever = retriever()
 
 # Define the prompt template for the LLM
 prompt = PromptTemplate(
-    template="""""<s>[INST] <<SYS>>
-    You are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe.  
-    Your answers should not include any harmful, unethical, racist, sexist, toxic, dangerous, or illegal content. 
-    Please ensure that your responses are socially unbiased and positive in nature.
-    If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. 
-    If you don't know the answer to a question, please don't share false information.
-    Limit your use a maximum of 3 bullet points
-    <</SYS>
+    template="""<s>[INST] <<SYS>>Use only 5 words  <</SYS>
     Question: {question}
     Documents: {documents}
     """,
     input_variables=["question", "documents"],
 )
 
-
 # Initialize the LLM with Llama 3.1 model
 def llm(model= str):
 
     llm = ChatOllama(
             model=model,
-            temperature=0.20)
+            temperature=0.2)
     return llm
 
 llm = llm(model="llama3.2")
 
 
+
 # Create a chain combining the prompt template and LLM
 rag_chain = prompt | llm | StrOutputParser()
+
 
 # Define the RAG application class
 class RAGApplication:
@@ -111,6 +107,7 @@ class RAGApplication:
         # Extract content from retrieved documents
         doc_texts = "\\n".join([doc.page_content for doc in documents])
         # Get the answer from the language model
+        
         answer = self.rag_chain.invoke({"question": question, "documents": doc_texts})
         return answer
 
@@ -118,7 +115,7 @@ class RAGApplication:
 # Initialize the RAG application
 rag_application = RAGApplication(retriever, rag_chain)
 # Example usage
-question = "welche frage habe ich dir vorhin gestellt?"
+question = "Was steht im Appendix"
 answer = rag_application.run(question)
 print("Question:", question)
 print("Answer:", answer)
