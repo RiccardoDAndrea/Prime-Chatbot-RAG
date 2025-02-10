@@ -89,7 +89,7 @@ def llm(model= str):
 
     llm = ChatOllama(
             model=model,
-            temperature=0)
+            temperature=0.20)
     return llm
 
 llm = llm(model="llama3.2")
