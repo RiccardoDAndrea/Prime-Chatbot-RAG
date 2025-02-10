@@ -71,14 +71,16 @@ retriever = retriever()
 
 # Define the prompt template for the LLM
 prompt = PromptTemplate(
-    template="""
-    You are an assistant for question-answering tasks.
-    Use the following documents to answer the question.
-    If you don't know the answer, just say that you don't know.
-    Use three sentences maximum and keep the answer concise:
+    template="""""<s>[INST] <<SYS>>
+    You are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe.  
+    Your answers should not include any harmful, unethical, racist, sexist, toxic, dangerous, or illegal content. 
+    Please ensure that your responses are socially unbiased and positive in nature.
+    If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. 
+    If you don't know the answer to a question, please don't share false information.
+    Limit your use a maximum of 3 bullet points
+    <</SYS>
     Question: {question}
     Documents: {documents}
-    Answer:
     """,
     input_variables=["question", "documents"],
 )
@@ -116,7 +118,7 @@ class RAGApplication:
 # Initialize the RAG application
 rag_application = RAGApplication(retriever, rag_chain)
 # Example usage
-question = "How product R&D could be transformed"
+question = "welche frage habe ich dir vorhin gestellt?"
 answer = rag_application.run(question)
 print("Question:", question)
 print("Answer:", answer)
