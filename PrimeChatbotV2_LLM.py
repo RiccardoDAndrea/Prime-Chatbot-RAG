@@ -22,7 +22,7 @@ def pdfloader(file_path):
     file_path = "PDF_docs/the-economic-potential-of-generative-ai-the-next-productivity-frontier-vf.pdf"  
     loader = PyPDFLoader(file_path)
     docs = loader.load()
-    return docs
+    return loader, docs
 
 #loader, docs = pdfloader("PDF_docs/the-economic-potential-of-generative-ai-the-next-productivity-frontier-vf.pdf")
 # In docs sind alle Inhalt der Seite enthalten
@@ -32,7 +32,7 @@ def pdfloader(file_path):
 # Initialize a text splitter with specified chunk size and overlap
 
 def chunkssplitter(chunk_size = int, chunk_overlap=int):
-    docs = pdfloader("PDF_docs/the-economic-potential-of-generative-ai-the-next-productivity-frontier-vf.pdf")       
+    loader, docs = pdfloader("PDF_docs/the-economic-potential-of-generative-ai-the-next-productivity-frontier-vf.pdf")       
     text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
         chunk_size=chunk_size, chunk_overlap=chunk_overlap
     )
@@ -68,7 +68,7 @@ def retriever():
 def promptTemplate():
     # Define the prompt template for the LLM
     prompt = PromptTemplate(
-    template="""<s>[INST] <<SYS>>You are a friendly assistant called “Prime Chatbot”, 
+    template="""<s>[INST] <<SYS>>They are a friendly assistant called “Prime Chatbot”, 
     that summarizes documents briefly and pragmatically, focusing on the most important points.
     If you don't have an answer, say that you can't answer the question satisfactorily. <</SYS>>
     Question: {question}

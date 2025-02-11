@@ -2,7 +2,7 @@ from langchain_core.output_parsers import StrOutputParser
 from PrimeChatbotV2_LLM import pdfloader, chunkssplitter, create_vectorstore, retriever, llm, promptTemplate
 
 
-docs = pdfloader("PDF_docs/NEJMra1204479.pdf")
+loader, docs = pdfloader("PDF_docs/NEJMra1204479.pdf")
 doc_splits = chunkssplitter(chunk_size= 4500, chunk_overlap=300) # Seite ist auf "page_lage" nicht "page"
 vectorstore = create_vectorstore()
 Retriever = retriever()
@@ -21,10 +21,9 @@ def initalise_PrimeV2(question):
     answer = rag_chain.invoke({"question": question, "documents": doc_texts})
     return answer
 
-question = "Can y_PrimeV2(question)
+question = "Can you tell me what is the text about"
+answer = initalise_PrimeV2(question)
 print("Question:", question)
-print("------------------")
 print("Answer:", answer)
-ou tell me what is the text about"
-answer = initalise
+
 
