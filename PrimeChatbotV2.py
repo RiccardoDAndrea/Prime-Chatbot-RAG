@@ -1,30 +1,29 @@
-## Prime-Chatbot Version 2 
-### Die neue Version so die fahigkeit haben  mehre Model zu beinhalten
-### Dabei soll auch eine Optimerite Rag Kompatibilitat hinzugefugt werden
-
-import ollama
-
-from ollama import chat
-from ollama import ChatResponse
-ollamaModel_LLMlist = ["llama3.1", "llama3.2"]
+from langchain_core.output_parsers import StrOutputParser
+from PrimeChatbotV2_LLM import pdfloader, chunkssplitter, create_vectorstore, retriever, llm, promptTemplate
 
 
+loader, docs = pdfloader("PDF_docs/the-economic-potential-of-generative-ai-the-next-productivity-frontier-vf.pdf")
+doc_splits = chunkssplitter(chunk_size= 4500, chunk_overlap=300) # Seite ist auf page_lage nicht page
+vectorstore = create_vectorstore()
+Retriever = retriever()
+prompt = promptTemplate()
+llm = llm(model="llama3.2")
 
-def ollamaLLM_response(prompt:str, model:int):
-    """
-    TODO: Desc
+
+def initalise_PrimeV2(question):
+    # Retrieve relevant documents
+    rag_chain = prompt | llm | StrOutputParser()
+    documents = Retriever.invoke(question)
+    # Extract content from retrieved documents
+    doc_texts = "\\n".join([doc.page_content for doc in documents])
+    # Get the answer from the language model
     
-    """
-    response: ChatResponse = chat(model=ollamaModel_LLMlist[int], messages=[
-    {
-        'role': 'user',
-        'content': f'{prompt}',
-    },
-    ])
-    answer = response['message']['content']
-    # or access fields directly from the response object
+    answer = rag_chain.invoke({"question": question, "documents": doc_texts})
     return answer
 
+question = "Was steht im Appendix"
+answer = initalise_PrimeV2.run(question)
+print("Question:", question)
+print("Answer:", answer)
 
-#print(response["model"] + " " + (response["created_at"]))
-#print(response["message"]["content"])
+

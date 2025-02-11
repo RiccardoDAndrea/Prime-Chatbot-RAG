@@ -14,17 +14,6 @@ from langchain_community.vectorstores import SKLearnVectorStore
 import os
 
 #os.environ['USER_AGENT'] = 'myagent'
-## List of URLs to load documents from
-#urls = [
-#    "<https://lilianweng.github.io/posts/2023-06-23-agent/>",
-#    "<https://lilianweng.github.io/posts/2023-03-15-prompt-engineering/>",
-#    "<https://lilianweng.github.io/posts/2023-10-25-adv-attack-llm/>",
-#]
-
-
-#loader = WebBaseLoader("https://python.langchain.com/docs/tutorials/rag/")
-
-
 def pdfloader(file_path):
     """
     description: Load a PDF document from a file path 
@@ -57,28 +46,35 @@ doc_splits = chunkssplitter(chunk_size= 4500, chunk_overlap=300) # Seite ist auf
 
 # Create embeddings for documents and store them in a vector store
 
-def vectorstore():
+def create_vectorstore():
     vectorstore = SKLearnVectorStore.from_documents(
                 documents=doc_splits,
-                embedding = OllamaEmbeddings(model="llama3.2"))
+                embedding=OllamaEmbeddings(model="llama3.2"))
     return vectorstore
-vectorstore = vectorstore()
+
+vectorstore = create_vectorstore()
+
 
 
 def retriever():
     retriever = vectorstore.as_retriever(k=4)
     return retriever
 
-retriever = retriever()
+Retriever = retriever()
 
-# Define the prompt template for the LLM
-prompt = PromptTemplate(
-    template="""<s>[INST] <<SYS>>Use only 5 words  <</SYS>
-    Question: {question}
-    Documents: {documents}
-    """,
-    input_variables=["question", "documents"],
-)
+
+def promptTemplate():
+    # Define the prompt template for the LLM
+    prompt = PromptTemplate(
+        template="""<s>[INST] <<SYS>>Use only 5 words  <</SYS>
+        Question: {question}
+        Documents: {documents}
+        """,
+        input_variables=["question", "documents"],
+        )
+    return prompt
+prompt = promptTemplate()
+
 
 # Initialize the LLM with Llama 3.1 model
 def llm(model= str):
@@ -95,15 +91,14 @@ llm = llm(model="llama3.2")
 # Create a chain combining the prompt template and LLM
 rag_chain = prompt | llm | StrOutputParser()
 
-
-# Define the RAG application class
+ # Define the RAG application class
 class RAGApplication:
-    def __init__(self, retriever, rag_chain):
-        self.retriever = retriever
+    def __init__(self, Retriever, rag_chain):
+        self.Retriever = Retriever
         self.rag_chain = rag_chain
     def run(self, question):
         # Retrieve relevant documents
-        documents = self.retriever.invoke(question)
+        documents = self.Retriever.invoke(question)
         # Extract content from retrieved documents
         doc_texts = "\\n".join([doc.page_content for doc in documents])
         # Get the answer from the language model
@@ -113,9 +108,9 @@ class RAGApplication:
 
 
 # Initialize the RAG application
-rag_application = RAGApplication(retriever, rag_chain)
+rag_application = RAGApplication(Retriever, rag_chain)
 # Example usage
-question = "Was steht im Appendix"
+question = "Can you sumarries the paper?"
 answer = rag_application.run(question)
 print("Question:", question)
 print("Answer:", answer)
