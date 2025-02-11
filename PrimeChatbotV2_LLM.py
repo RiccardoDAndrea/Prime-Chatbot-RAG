@@ -22,7 +22,7 @@ def pdfloader(file_path):
     file_path = "PDF_docs/the-economic-potential-of-generative-ai-the-next-productivity-frontier-vf.pdf"  
     loader = PyPDFLoader(file_path)
     docs = loader.load()
-    return loader, docs
+    return docs
 
 #loader, docs = pdfloader("PDF_docs/the-economic-potential-of-generative-ai-the-next-productivity-frontier-vf.pdf")
 # In docs sind alle Inhalt der Seite enthalten
@@ -32,7 +32,7 @@ def pdfloader(file_path):
 # Initialize a text splitter with specified chunk size and overlap
 
 def chunkssplitter(chunk_size = int, chunk_overlap=int):
-    loader, docs = pdfloader("PDF_docs/the-economic-potential-of-generative-ai-the-next-productivity-frontier-vf.pdf")       
+    docs = pdfloader("PDF_docs/the-economic-potential-of-generative-ai-the-next-productivity-frontier-vf.pdf")       
     text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
         chunk_size=chunk_size, chunk_overlap=chunk_overlap
     )
