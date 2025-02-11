@@ -1,6 +1,6 @@
 llm/
 api_token.json
-
+.venv
 config.yoml
-
+embedding
 prime
