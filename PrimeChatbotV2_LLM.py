@@ -24,7 +24,7 @@ def pdfloader(file_path):
     docs = loader.load()
     return loader, docs
 
-loader, docs = pdfloader("PDF_docs/the-economic-potential-of-generative-ai-the-next-productivity-frontier-vf.pdf")
+#loader, docs = pdfloader("PDF_docs/the-economic-potential-of-generative-ai-the-next-productivity-frontier-vf.pdf")
 # In docs sind alle Inhalt der Seite enthalten
 
 
@@ -32,7 +32,7 @@ loader, docs = pdfloader("PDF_docs/the-economic-potential-of-generative-ai-the-n
 # Initialize a text splitter with specified chunk size and overlap
 
 def chunkssplitter(chunk_size = int, chunk_overlap=int):
-        
+    loader, docs = pdfloader("PDF_docs/the-economic-potential-of-generative-ai-the-next-productivity-frontier-vf.pdf")       
     text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
         chunk_size=chunk_size, chunk_overlap=chunk_overlap
     )
@@ -41,39 +41,44 @@ def chunkssplitter(chunk_size = int, chunk_overlap=int):
     #print(doc_splits)
     return doc_splits
 
-doc_splits = chunkssplitter(chunk_size= 4500, chunk_overlap=300) # Seite ist auf page_lage nicht page
+#doc_splits = chunkssplitter(chunk_size= 4500, chunk_overlap=300) # Seite ist auf page_lage nicht page
 
 
 # Create embeddings for documents and store them in a vector store
 
 def create_vectorstore():
+    doc_splits = chunkssplitter(chunk_size= 4500, chunk_overlap=300)
     vectorstore = SKLearnVectorStore.from_documents(
                 documents=doc_splits,
                 embedding=OllamaEmbeddings(model="llama3.2"))
     return vectorstore
 
-vectorstore = create_vectorstore()
+#vectorstore = create_vectorstore()
 
 
 
 def retriever():
+    vectorstore = create_vectorstore()
     retriever = vectorstore.as_retriever(k=4)
     return retriever
 
-Retriever = retriever()
+#Retriever = retriever()
 
 
 def promptTemplate():
     # Define the prompt template for the LLM
     prompt = PromptTemplate(
-        template="""<s>[INST] <<SYS>>Use only 5 words  <</SYS>
-        Question: {question}
-        Documents: {documents}
-        """,
-        input_variables=["question", "documents"],
+    template="""<s>[INST] <<SYS>>Sie sind ein freundlicher Assistent namens „Prime-Chatbot“, 
+    der Dokumente kurz und pragmatisch zusammenfasst und sich dabei auf die wichtigsten Punkte konzentriert.
+    Wenn du keine Antwort hast, sagst du, dass du die Frage nicht zufriedenstellend beantworten kannst. <</SYS>>
+    Question: {question}
+    Documents: {documents}
+    [/INST]""",
+    input_variables=["question", "documents"],
         )
+
     return prompt
-prompt = promptTemplate()
+#prompt = promptTemplate()
 
 
 # Initialize the LLM with Llama 3.1 model
@@ -84,33 +89,33 @@ def llm(model= str):
             temperature=0.2)
     return llm
 
-llm = llm(model="llama3.2")
+#llm = llm(model="llama3.2:1b")
 
 
 
-# Create a chain combining the prompt template and LLM
-rag_chain = prompt | llm | StrOutputParser()
+# # Create a chain combining the prompt template and LLM
+# rag_chain = prompt | llm | StrOutputParser()
 
- # Define the RAG application class
-class RAGApplication:
-    def __init__(self, Retriever, rag_chain):
-        self.Retriever = Retriever
-        self.rag_chain = rag_chain
-    def run(self, question):
-        # Retrieve relevant documents
-        documents = self.Retriever.invoke(question)
-        # Extract content from retrieved documents
-        doc_texts = "\\n".join([doc.page_content for doc in documents])
-        # Get the answer from the language model
+#  # Define the RAG application class
+# class RAGApplication:
+#     def __init__(self, Retriever, rag_chain):
+#         self.Retriever = Retriever
+#         self.rag_chain = rag_chain
+#     def run(self, question):
+#         # Retrieve relevant documents
+#         documents = self.Retriever.invoke(question)
+#         # Extract content from retrieved documents
+#         doc_texts = "\\n".join([doc.page_content for doc in documents])
+#         # Get the answer from the language model
         
-        answer = self.rag_chain.invoke({"question": question, "documents": doc_texts})
-        return answer
+#         answer = self.rag_chain.invoke({"question": question, "documents": doc_texts})
+#         return answer
 
 
-# Initialize the RAG application
-rag_application = RAGApplication(Retriever, rag_chain)
-# Example usage
-question = "Can you sumarries the paper?"
-answer = rag_application.run(question)
-print("Question:", question)
-print("Answer:", answer)
+# # Initialize the RAG application
+# rag_application = RAGApplication(Retriever, rag_chain)
+# # Example usage
+# question = "Can you sumarries the paper?"
+# answer = rag_application.run(question)
+# print("Question:", question)
+# print("Answer:", answer)
