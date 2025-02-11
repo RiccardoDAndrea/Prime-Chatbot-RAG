@@ -21,9 +21,7 @@ example_pdfs = {
 
 # Streamlit Main
 st.sidebar.title("Prime-Chatbot 🤖")
-
 llm_model = st.sidebar.selectbox("Select the LLM model", options=["gpt-4o", "gpt-3.5-turbo"])
-
 st.sidebar.markdown("### Example PDFs")
 selected_example_pdfs = st.sidebar.selectbox('Choose your PDF example', options=["The economic potential of generative AI", "Overcoming huge challenges in cancer", "Upload your own data"])
 
@@ -89,24 +87,22 @@ def initialize_embeddings(Open_api_token=Open_api_token):
 
 # Function to initialize Chroma database
 def initialize_chroma(chunks, embedding_function):
-    try:
-        db = Chroma.from_documents(chunks, embedding_function)
-        return db
-    except Exception as e:
-        if "Error code: 401 - {'error': {'message': 'Incorrect API key provided: sk-. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}" in str(e):
-            st.info("Invalid API key provided. Please enter a valid OpenAI API key.")
-            #st.error(f"Error initializing Chroma database: {e}")
-        return None
+    
+    db = Chroma.from_documents(chunks, embedding_function)
+    print(db)
+    return db
+    
+        
 
 # Function to retrieve documents
 def retrieve_documents(db, query):
-    try:
-        retriever = db.as_retriever(search_kwargs={"k": 2})
-        retriever.invoke(query)
-        return retriever
-    except Exception as e:
-        st.error(f"Error retrieving documents: {e}")
-        return None
+
+    retriever = db.as_retriever(search_kwargs={"k": 3})
+    print(retriever)
+
+    retriever.invoke(query)
+    print(query)
+    return retriever
 
 # Function to initialize LLM model
 def initialize_llm_model(llm_model= llm_model):
@@ -117,6 +113,7 @@ def initialize_llm_model(llm_model= llm_model):
             temperature=0.0,
             max_tokens=1000
         )
+        print(llm)
         return llm
     except Exception as e:
         st.error(f"Error initializing OpenAI model: {e}")
@@ -124,21 +121,19 @@ def initialize_llm_model(llm_model= llm_model):
 
 # Function to perform QA with sources
 def qa_with_sources(llm_instance, chunks, embedding_instance, query):
-    try:
-        text_splitter_instance = RecursiveCharacterTextSplitter(
-            chunk_size=4500,
-            chunk_overlap=200,
-            length_function=len
-        )
-        db = initialize_chroma(chunks, embedding_instance)
-        retriever_instance = retrieve_documents(db, query)
-        if not retriever_instance:
-            return {"answer": "Error retrieving documents."}
-        qa_with_sources_result = RetrievalQAWithSourcesChain.from_chain_type(llm=llm_instance, chain_type="stuff", retriever=retriever_instance)
-        return qa_with_sources_result.invoke(query)
-    except Exception as e:
-        st.error(f"Error processing QA: {e}")
-        return {"answer": f"Error processing request: {e}"}
+    
+    text_splitter_instance = RecursiveCharacterTextSplitter(
+        chunk_size=4500,
+        chunk_overlap=200,
+        length_function=len
+    )
+    db = initialize_chroma(chunks, embedding_instance)
+    retriever_instance = retrieve_documents(db, query)
+    if not retriever_instance:
+        return {"answer": "Error retrieving documents."}
+    qa_with_sources_result = RetrievalQAWithSourcesChain.from_chain_type(llm=llm_instance, chain_type="stuff", retriever=retriever_instance)
+    return qa_with_sources_result.invoke(query)
+    
 
 ########################################################################
 ################## M A I N _ E X E C U T I O N #########################
