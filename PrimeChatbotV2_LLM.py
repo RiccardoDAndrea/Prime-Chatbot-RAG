@@ -68,9 +68,9 @@ def retriever():
 def promptTemplate():
     # Define the prompt template for the LLM
     prompt = PromptTemplate(
-    template="""<s>[INST] <<SYS>>Sie sind ein freundlicher Assistent namens „Prime-Chatbot“, 
-    der Dokumente kurz und pragmatisch zusammenfasst und sich dabei auf die wichtigsten Punkte konzentriert.
-    Wenn du keine Antwort hast, sagst du, dass du die Frage nicht zufriedenstellend beantworten kannst. <</SYS>>
+    template="""<s>[INST] <<SYS>>You are a friendly assistant called “Prime Chatbot”, 
+    that summarizes documents briefly and pragmatically, focusing on the most important points.
+    If you don't have an answer, say that you can't answer the question satisfactorily. <</SYS>>
     Question: {question}
     Documents: {documents}
     [/INST]""",
