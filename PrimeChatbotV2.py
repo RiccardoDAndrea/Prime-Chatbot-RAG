@@ -2,10 +2,10 @@ from langchain_core.output_parsers import StrOutputParser
 from PrimeChatbotV2_LLM import pdfloader, chunkssplitter, create_vectorstore, retriever, llm, promptTemplate
 
 
-loader, docs = pdfloader("PDF_docs/NEJMra1204479.pdf")
+docs = pdfloader("PDF_docs/NEJMra1204479.pdf")
 doc_splits = chunkssplitter(chunk_size= 4500, chunk_overlap=300) # Seite ist auf "page_lage" nicht "page"
 vectorstore = create_vectorstore()
-Retriever = retriever()
+Retriever = retriever(k_int=4)
 prompt = promptTemplate()
 llm = llm(model="llama3.2:1b")
 
