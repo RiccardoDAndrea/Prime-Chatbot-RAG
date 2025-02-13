@@ -11,7 +11,7 @@ llm = llm(model="llama3.2:1b")
 
 
 def initalise_PrimeV2(question):
-    # Retrieve relevant documents
+    # Retrieve relevant documentssssss
     rag_chain = prompt | llm | StrOutputParser()
     documents = Retriever.invoke(question)
     # Extract content from retrieved documents
