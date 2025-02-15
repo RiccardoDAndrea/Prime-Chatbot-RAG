@@ -8,4 +8,8 @@ reader = pypdf.PdfReader('PDF_docs/doc.pdf')
 print(reader.pages[0].extract_text())
 #print(len(reader.pages))
 
+
 # Test if gemerged wurde
+#
+#
+# das ist ein test
