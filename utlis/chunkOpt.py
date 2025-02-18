@@ -1,6 +1,7 @@
 # Optimizing the chucking process
 import os
 import pdfplumber
+import re
 """
 First we try to create a Research Prime
 to split up the fuction. And the we can try to combine them.
@@ -22,21 +23,47 @@ Step 4
 
 def get_text(file_path: str) -> str:
     """
+    Extrahiert den gesamten Text aus einem mehrseitigen PDF.
     
+    Args:
+        file_path (str): Der Dateipfad zum PDF-Dokument.
     
+    Returns:
+        str: Der gesamte extrahierte Text.
     """
-    with pdfplumber.open("PDF_docs/doc_0.pdf") as pdf:
-        text = ""
+    text_list = []
+
+    with pdfplumber.open(file_path) as pdf:
         for page in pdf.pages:
-        # Begrenzung auf einen Bereich (Bounding Box) für den Haupttext
-            body_box = (50, 100, page.width - 50, page.height - 100)  
-            body_text = page.within_bbox(body_box).extract_text()
-            if body_text:
-                text += body_text + "\n"
-
-                return text
-
-print(get_text(file_path="PDF_docs/doc_0.pdf"))
+            text = page.extract_text()
+            if text:
+                text_list.append(text)
+                text = "\n".join(text_list)
+    return text
 
 
 
+def extract_citazion(text = str) -> str:
+    """
+
+    """
+    # Split an "Reference"
+    parts = text.split("Reference", 1)  # "1" sorgt dafür, dass nur am ersten "Reference" getrennt wird
+    before_reference = parts[0].strip()  # Text vor "Reference"
+    reference_section = parts[1].strip() if len(parts) > 1 else ""  # Alles nach "Reference"
+
+    print("Vor Reference:")
+    print(before_reference)
+
+    print("\nReference-Teil:")
+    print(reference_section)
+    
+    
+    return before_reference, reference_section
+
+text = get_text("PDF_docs/doc_0.pdf")
+
+before_reference, reference_section = extract_citazion(text = text)
+    
+
+print(reference_section)  
