@@ -23,13 +23,13 @@ Step 4
 
 def get_text(file_path: str) -> str:
     """
-    Extrahiert den gesamten Text aus einem mehrseitigen PDF.
+    Extract the text from the add pdf file
     
     Args:
-        file_path (str): Der Dateipfad zum PDF-Dokument.
+        file_path (str): File path to the PDF-Document.
     
     Returns:
-        str: Der gesamte extrahierte Text.
+        str: Extract text as string.
     """
     text_list = []
 
@@ -42,28 +42,22 @@ def get_text(file_path: str) -> str:
     return text
 
 
-
 def extract_citazion(text = str) -> str:
     """
+    Split the Studie in Body text and reference text.
 
+    Args:
+        text (str): A String from a Studie
+    
+    Return:
+        body: str with the studie 
+        reference: str with the reference
     """
-    # Split an "Reference"
+    
     parts = text.split("Reference", 1)  # "1" sorgt dafür, dass nur am ersten "Reference" getrennt wird
-    before_reference = parts[0].strip()  # Text vor "Reference"
-    reference_section = parts[1].strip() if len(parts) > 1 else ""  # Alles nach "Reference"
-
-    print("Vor Reference:")
-    print(before_reference)
-
-    print("\nReference-Teil:")
-    print(reference_section)
-    
-    
-    return before_reference, reference_section
+    body = parts[0].strip()  # Text vor "Reference"
+    reference = parts[1].strip() if len(parts) > 1 else ""  # Alles nach "Reference"    
+    return body, reference
 
 text = get_text("PDF_docs/doc_0.pdf")
-
-before_reference, reference_section = extract_citazion(text = text)
-    
-
-print(reference_section)  
+body, reference  = extract_citazion(text = text)
