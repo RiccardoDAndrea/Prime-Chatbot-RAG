@@ -53,11 +53,24 @@ def extract_citazion(text = str) -> str:
         body: str with the studie 
         reference: str with the reference
     """
-    
-    parts = text.split("Reference", 1)  # "1" sorgt dafür, dass nur am ersten "Reference" getrennt wird
+    search_word = "Reference"
+    parts = text.split(search_word.upper(), 1)  # "1" sorgt dafür, dass nur am ersten "Reference" getrennt wird
     body = parts[0].strip()  # Text vor "Reference"
     reference = parts[1].strip() if len(parts) > 1 else ""  # Alles nach "Reference"    
     return body, reference
 
-text = get_text("PDF_docs/doc_0.pdf")
-body, reference  = extract_citazion(text = text)
+
+def inital_reader(file_path=str):
+    text = get_text(file_path = file_path)
+    body, reference = extract_citazion(text = text)
+
+    return body, reference
+
+
+body, reference = inital_reader(file_path="PDF_docs/doc_2.pdf")
+print(reference)
+
+# text = get_text("PDF_docs/doc_0.pdf")
+# body, reference  = extract_citazion(text = text)
+
+
