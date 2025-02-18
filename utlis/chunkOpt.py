@@ -42,33 +42,36 @@ def get_text(file_path: str) -> str:
     return text
 
 
-def extract_citazion(text = str) -> str:
+def extract_citation(text: str) -> tuple[str, str]:
     """
-    Split the Studie in Body text and reference text.
+    Split a study text into body text and references section.
 
     Args:
-        text (str): A String from a Studie
+        text (str): A string containing the full study text.
     
-    Return:
-        body: str with the studie 
-        reference: str with the reference
+    Returns:
+        tuple[str, str]: 
+            - body (str): The study body text.
+            - reference (str): The extracted reference section.
     """
-    search_word = "Reference"
-    parts = text.split(search_word.upper(), 1)  # "1" sorgt dafür, dass nur am ersten "Reference" getrennt wird
-    body = parts[0].strip()  # Text vor "Reference"
-    reference = parts[1].strip() if len(parts) > 1 else ""  # Alles nach "Reference"    
+    # Case-insensitive split at "References"
+    parts = re.split(r"\breferences\b", text, flags=re.IGNORECASE, maxsplit=1)
+    
+    body = parts[0].strip()  # Everything before "References"
+    reference = parts[1].strip() if len(parts) > 1 else ""  # Everything after "References"
+
     return body, reference
 
 
 def inital_reader(file_path=str):
     text = get_text(file_path = file_path)
-    body, reference = extract_citazion(text = text)
+    body, reference = extract_citation(text = text)
 
     return body, reference
 
 
-body, reference = inital_reader(file_path="PDF_docs/doc_2.pdf")
-print(reference)
+body, reference = inital_reader(file_path="PDF_docs/doc_3.pdf")
+print(body)
 
 # text = get_text("PDF_docs/doc_0.pdf")
 # body, reference  = extract_citazion(text = text)
