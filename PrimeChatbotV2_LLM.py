@@ -29,13 +29,14 @@ def pdfloader(file_path):
     A List with the String of the PDF File
     """
 
-    file_path = "PDF_docs/the-economic-potential-of-generative-ai-the-next-productivity-frontier-vf.pdf"  
+    file_path = "PDF_docs/doc_2.pdf"  
     loader = PyPDFLoader(file_path)
     docs = loader.load()
 
     return docs
 
-# docs = pdfloader("PDF_docs/the-economic-potential-of-generative-ai-the-next-productivity-frontier-vf.pdf")
+docs = pdfloader("PDF_docs/the-economic-potential-of-generative-ai-the-next-productivity-frontier-vf.pdf")
+print(docs)
 # In docs sind alle Inhalt der Seite enthalten
 
 
@@ -94,9 +95,9 @@ def create_vectorstore():
                 embedding=OllamaEmbeddings(model="llama3.2"))
     return vectorstore
 
-#vectorstore = create_vectorstore()
+vectorstore = create_vectorstore()
 
-
+#print(vectorstore)
 
 def retriever(k_int:int):
     """

@@ -2,6 +2,8 @@
 import os
 import pdfplumber
 import re
+from pypdf import PdfReader
+
 """
 First we try to create a Research Prime
 to split up the fuction. And the we can try to combine them.
@@ -38,7 +40,7 @@ class ReaderPDF:
         """
         text_list = []
 
-        with pdfplumber.open(self.file_path) as pdf:
+        with PdfReader(self.file_path) as pdf:
             for page in pdf.pages:
                 text = page.extract_text()
                 if text:
@@ -76,18 +78,13 @@ class ReaderPDF:
             str:
                 - title of the Document
         """
-        pdf = pdfplumber.open(self.file_path)
-        metadata = pdf.metadata  # Extrahiere Metadaten
-        if metadata and "Title" in metadata and metadata["Title"]:
-            title = metadata['Title']
-        return title
+
 
 
     def initial_reader(self):
         text = self.get_text()
-        title = self.get_metadata()
         body, reference = self.extract_citation(text)
-        return title, body, reference
+        return body, reference
     
 
 
@@ -95,8 +92,8 @@ class ReaderPDF:
 reader = ReaderPDF(file_path="PDF_docs/doc_0.pdf")
 
 # Extract text and citations
-title, body, reference = reader.initial_reader()
+body, reference = reader.initial_reader()
 
 # Print the extracted body text
-print("Title:", title)
-print("body:", body)
+#print("body:", body)
+print(reference)
