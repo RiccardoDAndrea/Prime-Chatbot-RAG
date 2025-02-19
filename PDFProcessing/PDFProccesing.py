@@ -68,17 +68,35 @@ class ReaderPDF:
         return body, reference
 
 
+    def get_metadata(self):
+        """
+        Retrieve the title from the meta data from the PDF Document.
+
+        Returns:
+            str:
+                - title of the Document
+        """
+        pdf = pdfplumber.open(self.file_path)
+        metadata = pdf.metadata  # Extrahiere Metadaten
+        if metadata and "Title" in metadata and metadata["Title"]:
+            title = metadata['Title']
+        return title
+
+
     def initial_reader(self):
         text = self.get_text()
+        title = self.get_metadata()
         body, reference = self.extract_citation(text)
-        return body, reference
+        return title, body, reference
+    
 
 
 # Create an instance of ReaderPDF
-reader = ReaderPDF(file_path="PDF_docs/doc_4.pdf")
+reader = ReaderPDF(file_path="PDF_docs/doc_0.pdf")
 
 # Extract text and citations
-body, reference = reader.initial_reader()
+title, body, reference = reader.initial_reader()
 
 # Print the extracted body text
-print("reference:\n", reference)
+print("Title:", title)
+print("body:", body)
