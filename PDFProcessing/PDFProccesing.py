@@ -7,6 +7,8 @@ First we try to create a Research Prime
 to split up the fuction. And the we can try to combine them.
 So this Scirpt is a deep researchish Prime-Chatbot
 
+Problem: Every PDF is written diffrently
+
 Data processing
 -----------------
 Step 1: Extract the text
@@ -21,9 +23,11 @@ Step3:  If we extract text we only want the body of the text
 Step 4
 """
 
+# python PDFProcessing/PDFProccesing.py > outputs/refoutput.txt
 class ReaderPDF:
     def __init__(self, file_path):
         self.file_path = file_path
+
 
     def get_text(self) -> str:
         """
@@ -39,9 +43,10 @@ class ReaderPDF:
                 text = page.extract_text()
                 if text:
                     text_list.append(text)
-                    text = "\n".join(text_list)
+                    text = text.join(text_list)
         
         return text
+
 
     def extract_citation(self, text: str) -> tuple[str, str]:
         """
@@ -62,6 +67,7 @@ class ReaderPDF:
 
         return body, reference
 
+
     def initial_reader(self):
         text = self.get_text()
         body, reference = self.extract_citation(text)
@@ -69,15 +75,10 @@ class ReaderPDF:
 
 
 # Create an instance of ReaderPDF
-reader = ReaderPDF(file_path="PDF_docs/doc_3.pdf")
+reader = ReaderPDF(file_path="PDF_docs/doc_4.pdf")
 
 # Extract text and citations
 body, reference = reader.initial_reader()
 
 # Print the extracted body text
-print("Reference:\n", reference)
-
-
-with open(reference, 'w') as f:
-    original_stdout = reference.txt
-
+print("reference:\n", reference)
