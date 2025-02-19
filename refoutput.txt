@@ -1,0 +1,119 @@
+Reference:
+Francesca Bartolucci, Ernesto De Vito, Lorenzo Rosasco, and Stefano Vigogna. Understand-
+ing neural networks with reproducing kernel Banach spaces. Applied and Computational
+Harmonic Analysis, 62:194–236, 2023.
+Hermine Bierm´e, Olivier Durieu, and Yizao Wang. Generalized random fields and L´evy’s
+continuity theorem on the space of tempered distributions. Communications on Stochastic
+Analysis, 12(4):4, 2018.
+Daryl J. Daley and David Vere-Jones. An Introduction to the Theory of Point Processes:
+Volume II: General Theory and Structure. Probability and Its Applications. Springer New
+York, 2007.
+Donald L. Duttweiler and Thomas Kailath. RKHS approach to detection and estimation
+problems–IV: Non-Gaussian detection. IEEE Transactions on Information Theory, 19(1):
+19–28, 1973.
+Ethan Dyer and Guy Gur-Ari. Asymptotics of wide networks from Feynman diagrams. In
+International Conference on Learning Representations, 2020.
+Julien Fageot and Michael Unser. Scaling limits of solutions of linear stochastic differential
+equations driven by L´evy white noises. Journal of Theoretical Probability, 32(3):1166–1189,
+2019.
+Julien Fageot, Arash Amini, and Michael Unser. On the continuity of characteristic
+functionals and sparse stochastic modeling. Journal of Fourier Analysis and Applications,
+20:1179–1211, 2014.
+28
+Random ReLU Neural Networks as Non-Gaussian Processes
+Julien Fageot, Virginie Uhlmann, and Michael Unser. Gaussian and sparse processes are
+limits of generalized Poisson processes. Applied and Computational Harmonic Analysis,
+48(3):1045–1065, 2020.
+Xavier Fernique. Processus lin´eaires, processus g´en´eralis´es. Annales de l’institut Fourier, 17
+(1):1–92, 1967.
+Adri`a Garriga-Alonso, Carl Edward Rasmussen, and Laurence Aitchison. Deep convolu-
+tional networks as shallow Gaussian processes. In International Conference on Learning
+Representations, 2019.
+Izrail M. Gelfand. Generalized random processes. Dokl. Akad. Nauk SSSR (N.S.), 100:
+853–856, 1955.
+Izrail M. Gelfand and Georgiy E. Shilov. Generalized functions. Vol. I: Properties and
+operations. Academic Press, 1964.
+Izrail M. Gelfand and Naum Ya. Vilenkin. Generalized functions, Vol. 4: Applications of
+harmonic analysis. Academic Press, 1964.
+Izrail M. Gelfand, Mark I. Graev, and Naum Ya. Vilenkin. Generalized functions. Vol. 5:
+Integral geometry and representation theory. Academic Press, 1966.
+Boris Hanin. Random neural networks in the infinite width limit as Gaussian processes. The
+Annals of Applied Probability, 33(6A):4798–4819, 2023.
+Sigurdur Helgason. Integral Geometry and Radon Transforms. Springer New York, 2011.
+Takeyuki Hida and Nobuyuki Ikeda. Analysis on Hilbert space with reproducing kernel
+arising from multiple Wiener integral. In Proc. Fifth Berkeley Sympos. Math. Statist. and
+Probability, pages 117–143. Univ. California Press, Berkeley, CA, 1967.
+Kiyosi Itoˆ. Stationary random distributions. Memoirs of the College of Science. University
+of Kyoto. Series A. Mathematics, 28:209–223, 1954.
+Kiyosi Itˆo. Foundations of stochastic differential equations in infinite dimensional spaces,
+volume 47. SIAM, 1984.
+Niels Jacob and Ren´e L. Schilling. L´evy-Type Processes and Pseudodifferential Operators,
+pages 139–168. Birkh¨auser Boston, Boston, MA, 2001. ISBN 978-1-4612-0197-7.
+Andrei N. Kolmogorov. La transformation de Laplace dans les espaces lin´eaires. CR Acad.
+Sci. Paris, 200:1717–1718, 1935.
+Jaehoon Lee, Yasaman Bahri, Roman Novak, Samuel S. Schoenholz, Jeffrey Pennington,
+and Jascha Sohl-Dickstein. Deep neural networks as Gaussian processes. In International
+Conference on Learning Representations, 2018.
+Donald Ludwig. The Radon transform on Euclidean space. Communications on Pure and
+Applied Mathematics, 19:49–81, 1966.
+29
+Parhi, Bohra, El Biari, Pourya, and Unser
+Benoit B. Mandelbrot and John W. Van Ness. Fractional Brownian motions, fractional
+noises and applications. SIAM Review, 10(4):422–437, 1968.
+Alexander G. de G. Matthews, Jiri Hron, Mark Rowland, Richard E. Turner, and Zoubin
+Ghahramani. Gaussian process behaviour in wide deep neural networks. In International
+Conference on Learning Representations, 2018.
+Robert A. Minlos. Generalized random processes and their extension in measure. Trudy
+Moskovskogo Matematicheskogo Obshchestva, 8:497–518, 1959.
+Radford M. Neal. Bayesian Learning for Neural Networks. Lecture Notes in Statistics.
+Springer New York, 1996.
+Roman Novak, Lechao Xiao, Yasaman Bahri, Jaehoon Lee, Greg Yang, Daniel A. Abolafia,
+Jeffrey Pennington, and Jascha Sohl-Dickstein. Bayesian deep convolutional networks
+with many channels are Gaussian processes. In International Conference on Learning
+Representations, 2019.
+Greg Ongie, Rebecca Willett, Daniel Soudry, and Nathan Srebro. A function space view
+of bounded norm infinite width ReLU nets: The multivariate case. In International
+Conference on Learning Representations, 2020.
+Rahul Parhi and Robert D. Nowak. Banach space representer theorems for neural networks
+and ridge splines. Journal of Machine Learning Research, 22(43):1–40, 2021.
+Rahul Parhi and Robert D. Nowak. What kinds of functions do deep neural networks learn?
+Insights from variational spline theory. SIAM Journal on Mathematics of Data Science, 4
+(2):464–489, 2022.
+Rahul Parhi and Robert D. Nowak. Near-minimax optimal estimation with shallow ReLU
+neural networks. IEEE Transactions on Information Theory, 69(2):1125–1140, 2023a.
+Rahul Parhi and Robert D. Nowak. Deep learning meets sparse regularization: A signal
+processing perspective. IEEE Signal Processing Magazine, 40(6):63–74, 2023b.
+Rahul Parhi and Michael Unser. Distributional extension and invertibility of the k-plane
+transform and its dual. SIAM Journal on Mathematical Analysis, 56(4):4662–4686, 2024.
+Rahul Parhi and Michael Unser. Function-space optimality of neural architectures with
+multivariate nonlinearities. SIAM Journal on Mathematics of Data Science, 7(1):110–135,
+2025.
+AlexanderG.RammandAlexanderI.Katsevich. The Radon transform and local tomography.
+CRC Press, Boca Raton, FL, 1996.
+Walter Rudin. Functional analysis. International Series in Pure and Applied Mathematics.
+McGraw-Hill, Inc., New York, second edition, 1991.
+Ken-Iti Sato. L´evy Processes and Infinitely Divisible Distributions. Cambridge Studies in
+Advanced Mathematics. Cambridge University Press, 1999.
+30
+Random ReLU Neural Networks as Non-Gaussian Processes
+Joseph Shenouda, Rahul Parhi, Kangwook Lee, and Robert D. Nowak. Variation spaces for
+multi-output neural networks: Insights on multi-task learning and network compression.
+Journal of Machine Learning Research, 25(231):1–40, 2024.
+Michael Unser. Ridges, neural networks, and the Radon transform. Journal of Machine
+Learning Research, 24(37):1–33, 2023.
+MichaelUnserandPouyaD.Tafti. An introduction to sparse stochastic processes. Cambridge
+University Press, 2014.
+Michael Unser, Pouya D. Tafti, and Qiyu Sun. A unified formulation of Gaussian versus
+sparse stochastic processes—Part I: Continuous-domain theory. IEEE Transactions on
+Information Theory, 60(3):1945–1962, 2014.
+Christopher Williams. Computing with infinite networks. Advances in Neural Information
+Processing Systems, 9, 1996.
+Sho Yaida. Non-Gaussian processes and neural networks at finite widths. In Mathematical
+and Scientific Machine Learning, pages 165–192. PMLR, 2020.
+Greg Yang. Tensor programs I: Wide feedforward or recurrent neural networks of any
+architecture are Gaussian processes. Advances in Neural Information Processing Systems,
+32, 2019.
+Jacob Zavatone-Veth and Cengiz Pehlevan. Exact marginal prior distributions of finite
+Bayesian neural networks. Advances in Neural Information Processing Systems, 34:
+3364–3375, 2021.
+31
