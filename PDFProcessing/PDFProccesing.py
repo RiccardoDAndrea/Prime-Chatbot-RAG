@@ -103,4 +103,4 @@ reader = ReaderPDF(file_path="PDF_docs/doc_1.pdf")
 # Extract tile, text and citations
 title, body, reference = reader.initial_reader()
 
-print(reference)
+print(title)
