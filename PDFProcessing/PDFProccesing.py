@@ -1,6 +1,10 @@
 import os
 import pdfplumber
 import re
+<<<<<<< HEAD
+=======
+from pypdf import PdfReader
+>>>>>>> 6dccec0c2ec7959162a32fde826ae53f23f86325
 
 """
 First we try to create a Research Prime
@@ -38,7 +42,7 @@ class ReaderPDF:
         """
         text_list = []
 
-        with pdfplumber.open(self.file_path) as pdf:
+        with PdfReader(self.file_path) as pdf:
             for page in pdf.pages:
                 text = page.extract_text()
                 if text:
@@ -76,6 +80,7 @@ class ReaderPDF:
             str:
                 - title of the Document
         """
+<<<<<<< HEAD
         pdf = pdfplumber.open(self.file_path)
         metadata = pdf.metadata  # Extrahiere Metadaten
         if metadata and "Title" in metadata and metadata["Title"]:
@@ -84,20 +89,31 @@ class ReaderPDF:
         else:
             title = "No Title"
             return title
+=======
+
+>>>>>>> 6dccec0c2ec7959162a32fde826ae53f23f86325
 
 
     def initial_reader(self):
         text = self.get_text()
-        title = self.get_metadata()
         body, reference = self.extract_citation(text)
-        return title, body, reference
+        return body, reference
     
 
 
 # Create an instance of ReaderPDF
 reader = ReaderPDF(file_path="PDF_docs/doc_0.pdf")
 
+<<<<<<< HEAD
 # Extract tile, text and citations
 title, body, reference = reader.initial_reader()
 
 
+=======
+# Extract text and citations
+body, reference = reader.initial_reader()
+
+# Print the extracted body text
+#print("body:", body)
+print(reference)
+>>>>>>> 6dccec0c2ec7959162a32fde826ae53f23f86325
