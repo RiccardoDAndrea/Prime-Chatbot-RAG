@@ -1,7 +1,7 @@
-# Optimizing the chucking process
 import os
 import pdfplumber
 import re
+
 """
 First we try to create a Research Prime
 to split up the fuction. And the we can try to combine them.
@@ -68,7 +68,7 @@ class ReaderPDF:
         return body, reference
 
 
-    def get_metadata(self):
+    def get_metadata(self) -> str:
         """
         Retrieve the title from the meta data from the PDF Document.
 
@@ -80,7 +80,10 @@ class ReaderPDF:
         metadata = pdf.metadata  # Extrahiere Metadaten
         if metadata and "Title" in metadata and metadata["Title"]:
             title = metadata['Title']
-        return title
+            return title
+        else:
+            title = "No Title"
+            return title
 
 
     def initial_reader(self):
@@ -94,9 +97,7 @@ class ReaderPDF:
 # Create an instance of ReaderPDF
 reader = ReaderPDF(file_path="PDF_docs/doc_0.pdf")
 
-# Extract text and citations
+# Extract tile, text and citations
 title, body, reference = reader.initial_reader()
 
-# Print the extracted body text
-print("Title:", title)
-print("body:", body)
+
