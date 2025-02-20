@@ -10,8 +10,10 @@ from langchain_core.output_parsers import StrOutputParser
 import os
 
 class PrimeChatbot:
-    def __init__(self, file_path):
+    def __init__(self, file_path, chunk_size, chunk_overlap):
         self.file_path = file_path
+        self.chunk_size=chunk_size
+        self.chunk_overlap = chunk_overlap
 
     def pdfloader(self):
         """
@@ -21,14 +23,14 @@ class PrimeChatbot:
         docs = loader.load()
         return docs
 
-    def chunkssplitter(self, chunk_size=500, chunk_overlap=300):
+    def chunkssplitter(self):
         """
         Splits the document into chunks.
         """
         docs = self.pdfloader()       
         text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
-            chunk_size=chunk_size, 
-            chunk_overlap=chunk_overlap
+            chunk_size=self.chunk_size, 
+            chunk_overlap=self.chunk_overlap
         )
         doc_splits = text_splitter.split_documents(docs)
         return doc_splits
@@ -103,9 +105,12 @@ class PrimeChatbot:
 
 
 # Initialize the RAG application
-PrimeChatbot = PrimeChatbot(file_path='PDF_docs/doc_3.pdf')
+PrimeChatbot = PrimeChatbot(file_path='PDF_docs/doc_0.pdf', chunk_size=500, chunk_overlap=300)
+docs = PrimeChatbot.chunkssplitter()
+print(docs)
 
-question = "Who are the authors of the current document?"
+
+question = "Can you tell me the first topic?"
 answer = PrimeChatbot.initaliseChatbot(question)
 print("Question:", question)
 print("Answer:", answer)
