@@ -87,7 +87,7 @@ class PrimeChatbot:
         return vectorstore
 
 
-    def Retriever(self, k_int=5):
+    def Retriever(self, k_int=2):
         """
         Retrieves a specified number of relevant documents.
         Retrives:
@@ -208,7 +208,7 @@ PrimeChatbot = PrimeChatbot(file_path='PDF_docs/doc_0.pdf',
 docs = PrimeChatbot.Retriever()
 #print(docs)
 
-question = "Can you give me some sources that have been added to the document?"
+question = "Can you give me some citation that have been in the document?"
 answer = PrimeChatbot.initaliseChatbot(question)
 print("Question:", question)
 print("Answer:", answer)
