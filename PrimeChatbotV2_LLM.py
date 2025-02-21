@@ -6,7 +6,6 @@ from langchain_ollama import ChatOllama
 from langchain.prompts import PromptTemplate
 from langchain_community.vectorstores import SKLearnVectorStore
 from langchain_core.output_parsers import StrOutputParser
-
 import os
 
 class PrimeChatbot:
@@ -15,13 +14,25 @@ class PrimeChatbot:
         self.chunk_size=chunk_size
         self.chunk_overlap = chunk_overlap
 
+
     def pdfloader(self):
         """
-        Load PDF files for the loader.
+        Extracts data from the PDF File as a String.
+
+        Parameters
+        ----------
+        self.file_path : str
+            Path to the PDF-File.
+
+        Returns
+        -------
+        Strings form Dodcument.
         """
+
         loader = PyPDFLoader(self.file_path)
         docs = loader.load()
         return docs
+
 
     def chunkssplitter(self):
         """
@@ -35,6 +46,7 @@ class PrimeChatbot:
         doc_splits = text_splitter.split_documents(docs)
         return doc_splits
 
+
     def create_vectorstore(self):
         """
         Creates a vector store from a document by splitting it into chunks and embedding them.
@@ -46,6 +58,7 @@ class PrimeChatbot:
         )
         return vectorstore
 
+
     def Retriever(self, k_int=5):
         """
         Retrieves a specified number of relevant documents.
@@ -55,6 +68,7 @@ class PrimeChatbot:
                                             search_type="similarity_score_threshold",
                                             search_kwargs={'score_threshold': 0.8})
         return retriever
+
 
     def promptTemplate(self):
         """
@@ -71,6 +85,7 @@ class PrimeChatbot:
         )
         return prompt
 
+
     def llm(self, model):
         """
         Initializes the language model.
@@ -81,6 +96,7 @@ class PrimeChatbot:
         )
         return llm
 
+
     def ragchain(self):
         """
         Creates the RAG (Retrieval-Augmented Generation) chain.
@@ -89,6 +105,7 @@ class PrimeChatbot:
         llm = self.llm(model='llama3.2:latest')
         rag_chain = prompt | llm 
         return rag_chain
+
 
     def initaliseChatbot(self, question):
         """
@@ -106,11 +123,11 @@ class PrimeChatbot:
 
 # Initialize the RAG application
 PrimeChatbot = PrimeChatbot(file_path='PDF_docs/doc_0.pdf', chunk_size=500, chunk_overlap=300)
-docs = PrimeChatbot.chunkssplitter()
+docs = PrimeChatbot.Retriever()
 print(docs)
 
 
-question = "Can you tell me the first topic?"
+question = "Who are the authors on the paper Two Hundred Years of Cancer Research ?"
 answer = PrimeChatbot.initaliseChatbot(question)
 print("Question:", question)
 print("Answer:", answer)
