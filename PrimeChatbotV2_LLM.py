@@ -1,197 +1,220 @@
-from ollama import chat
-from ollama import ChatResponse
+from ollama import ChatResponse, chat
 from langchain_ollama import OllamaEmbeddings
-from langchain_community.document_loaders import WebBaseLoader
+from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_ollama import ChatOllama
 from langchain.prompts import PromptTemplate
-from langchain_core.output_parsers import StrOutputParser
-from langchain_community.document_loaders import PyPDFLoader
 from langchain_community.vectorstores import SKLearnVectorStore
+from langchain_core.output_parsers import StrOutputParser
 import os
+from langchain_community.vectorstores import Chroma
 
-#os.environ['USER_AGENT'] = 'myagent'
-def pdfloader(file_path):
-    """
-    Load PDF files  for the loader.
-
-    Retrieves:
-        - docs: A List with the String of the PDF file
-
-    Parameters
-    ----------
-    file_path : str
-        Path to the PDF files.
-
-    Returns
-    -------
-    A List with the String of the PDF File
-    """
-
-    file_path = "PDF_docs/the-economic-potential-of-generative-ai-the-next-productivity-frontier-vf.pdf"  
-    loader = PyPDFLoader(file_path)
-    docs = loader.load()
-
-    return docs
-
-# docs = pdfloader("PDF_docs/the-economic-potential-of-generative-ai-the-next-productivity-frontier-vf.pdf")
-# In docs sind alle Inhalt der Seite enthalten
+class PrimeChatbot:
+    def __init__(self, file_path, model, chunk_size, chunk_overlap):
+        self.file_path=file_path
+        self.model = model
+        self.chunk_size=chunk_size
+        self.chunk_overlap=chunk_overlap
 
 
+    def pdfloader(self):
+        """
+        Extracts data from the PDF File as a String.
 
-# Initialize a text splitter with specified chunk size and overlap
+        Retrieves
+        ----------
+        self.file_path : str
+            Path to the PDF-File.
 
-def chunkssplitter(chunk_size = int, chunk_overlap=int):
-    """
-    Retrieves:
-        - docs splitts: A List with the String of the PDF file
+        Returns
+        -------
+        Strings form Dodcument.
 
-    Parameters
-    ----------
-    chunk_size : int
-        - Number of chunks through which the text is divided
-     chunk_overlap: int
-        - Number of overlaps between the chunks
+        """
 
-    Returns
-    -------
-    Text that has been split into chunks
-    """
+        loader = PyPDFLoader(self.file_path)
+        docs = loader.load()
 
-    docs = pdfloader("PDF_docs/the-economic-potential-of-generative-ai-the-next-productivity-frontier-vf.pdf")       
-    text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
-        chunk_size=chunk_size, chunk_overlap=chunk_overlap
-    )
-    # Split the documents into chunks
-    doc_splits = text_splitter.split_documents(docs)
-    return doc_splits
-
-#doc_splits = chunkssplitter(chunk_size= 4500, chunk_overlap=300) # Seite ist auf page_lage nicht page
-#print(doc_splits[0])
-
-# Create embeddings for documents and store them in a vector store
-
-def create_vectorstore():
-    """
-    Creates a vector store from a document by splitting it into chunks and embedding them.
-
-    Retrieves:
-        - doc_splits: A list of strings representing the text chunks from the PDF document.
-
-    Parameters
-    ----------
-    None
-
-    Returns
-    -------
-    vectorstore : SKLearnVectorStore
-        - A vector store containing the embedded document chunks.
-    """
-    doc_splits = chunkssplitter(chunk_size=4500, chunk_overlap=300)
-    vectorstore = SKLearnVectorStore.from_documents(
-                documents=doc_splits,
-                embedding=OllamaEmbeddings(model="llama3.2"))
-    return vectorstore
-
-#vectorstore = create_vectorstore()
+        return docs
 
 
+    def chunkssplitter(self):
+        """
+        Splits the document into chunks.
 
-def retriever(k_int:int):
-    """
-    Retrieves a amount of Information-
+        Retrieves
+        ----------
+        self.chunk_size : int
+            - Number of chunks of text
+        self.chunk_overlap : int
+            - Number of characters of the previous text
 
-    Retrieves:
-        - retriever : Pages of the retreives PDF-Document.
+        Returns
+        -------
+        Strings form Dodcument.
 
-    Parameters
-    ----------
-    chunk_size : int
-        - The number of characters each chunk should contain.
-    chunk_overlap : int
-        - The number of characters that should overlap between consecutive chunks.
+        """
+        
+        docs = self.pdfloader()       
+        text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
+            chunk_size=self.chunk_size, 
+            chunk_overlap=self.chunk_overlap)
+        
+        doc_splits = text_splitter.split_documents(docs)
 
-    Returns
-    -------
-    vectorstore : SKLearnVectorStore
-        - A vector store containing the embedded document chunks.
-    """
-    vectorstore = create_vectorstore()
-    retriever = vectorstore.as_retriever(k=k_int)
-    return retriever
+        return doc_splits
+    
+    def initialize_chroma(self):
+    
+        db = Chroma.from_documents()
 
-#Retriever = retriever()
+        return db
 
 
-def promptTemplate():
-    """
-    Retrieves a amount of Information-
+    def create_vectorstore(self):
+        """
+        Creates a vector store from a document by splitting it into chunks and embedding them.
+        
+        Retrives:
+        ---
+            self.chunkssplitter(): The split document into chunks and overlaps between the chunks
 
-    Retrieves:
-        - retriever : Pages of the retreives PDF-Document.
+        Returns:
+        ---
+        Collection of vectors 
 
-    Parameters
-    ----------
-    chunk_size : int
-        - The number of characters each chunk should contain.
-    chunk_overlap : int
-        - The number of characters that should overlap between consecutive chunks.
+        """
 
-    Returns
-    -------
-    vectorstore : SKLearnVectorStore
-        - A vector store containing the embedded document chunks.
-    """
-    # Define the prompt template for the LLM
-    prompt = PromptTemplate(
-    template="""<s>[INST] <<SYS>>You are a friendly assistant called “Prime Chatbot”, 
-    that summarizes documents briefly and pragmatically, focusing on the most important points.
-    If you don't have an answer, say that you can't answer the question satisfactorily. <</SYS>>
-    Question: {question}
-    Documents: {documents}
-    [/INST]""",
-    input_variables=["question", "documents"],
+        doc_splits = self.chunkssplitter()
+        vectorstore = SKLearnVectorStore.from_documents(
+            documents=doc_splits,
+            embedding=OllamaEmbeddings(model="llama3.2:latest")
         )
 
-    return prompt
-#prompt = promptTemplate()
+        return vectorstore
 
 
-# Initialize the LLM with Llama 3.1 model
-def llm(model= str):
+    def Retriever(self, k_int=2):
+        """
+        Retrieves a specified number of relevant documents.
+        Retrives:
+        ---
+            self.create_vectorstore(): Creates a vector store from a document by 
+                                       splitting it into chunks and embedding them.
 
-    llm = ChatOllama(
-            model=model,
-            temperature=0.2)
-    return llm
+        Parameter:
+            k_int (int): The number of top-scoring documents to retrieve. Defaults to 5.
 
-#llm = llm(model="llama3.2:1b")
+        Returns:
+            A retriever object that can be used to search for documents based on 
+            their similarity score.
+        """
+
+        vectorstore = self.create_vectorstore()
+        retriever = vectorstore.as_retriever(k=k_int,
+                                            search_type="similarity",
+                                            search_kwargs={"k": k_int}
+                                            )
+        return retriever
 
 
+    def promptTemplate(self):
+        """
+        Creates the prompt Instruction template for the language model.
 
-# # Create a chain combining the prompt template and LLM
-# rag_chain = prompt | llm | StrOutputParser()
+        Retrives:
+            Question: str
+                Query from the user
 
-#  # Define the RAG application class
-# class RAGApplication:
-#     def __init__(self, Retriever, rag_chain):
-#         self.Retriever = Retriever
-#         self.rag_chain = rag_chain
-#     def run(self, question):
-#         # Retrieve relevant documents
-#         documents = self.Retriever.invoke(question)
-#         # Extract content from retrieved documents
-#         doc_texts = "\\n".join([doc.page_content for doc in documents])
-#         # Get the answer from the language model
+        Returns:
+            Intruction for the LLM-Model
+        """
+
+        prompt = PromptTemplate(
+            template="""<s>[INST] <<SYS>>
+            You are an expert AI assistant. Answer the given question based on the provided documents. 
+            If the documents do not contain the answer, say 'I don't know'. Do not summarize.
+            <</SYS>>
+            Question: {question}
+            Documents: {documents}
+            Answer:""",
+            input_variables=["question", "documents"],
+            )
+        return prompt
+
+
+    def llm(self, model):
+        """
+        Initializes the language model.
+
+        Retrives:
+        ---
+            self.model(): Creates a vector store from a document by 
+                          splitting it into chunks and embedding them.
+
+        Parameter:
+            k_int (int): The number of top-scoring documents to retrieve. Defaults to 5.
+
+        Returns:
+            A retriever object that can be used to search for documents based on 
+            their similarity score.
+        """
         
-#         answer = self.rag_chain.invoke({"question": question, "documents": doc_texts})
-#         return answer
+        llm = ChatOllama(
+            model=self.model,
+            temperature=0.5
+        )
+        return llm
 
 
-# # Initialize the RAG application
-# rag_application = RAGApplication(Retriever, rag_chain)
-# # Example usage
-# question = "Can you sumarries the paper?"
-# answer = rag_application.run(question)
+    def ragchain(self):
+        """
+
+        
+        Creates the RAG (Retrieval-Augmented Generation) chain.
+        
+        Retrives:
+        ---
+            self.promptTemplate(): 
+                Creates the prompt Instruction template for the language model.
+            self.llm(): 
+                Initializes the language model.
+        Returns
+        ---
+        A RagChain object that combines an Instruction template and a language model.
+        The RagChain object contains a sequence of operations, starting with the creation of a prompt instruction template,
+        followed by the initialization of a language model. This chain can be used for text generation tasks.
+
+        """
+        rag_chain = self.promptTemplate() | self.llm(self.model) | StrOutputParser()
+
+        return rag_chain
+
+
+    def initializeChatbot(self, question):
+        """
+        Initializes the chatbot and processes the input question.
+        """
+        # Retrieve relevant documents
+        retriever = self.Retriever(k_int=1)  # Get top 5 relevant documents
+        documents = retriever.invoke(question)
+
+        # Get the answer from the language model
+        llm_chain = self.ragchain()
+        answer = llm_chain.invoke({"question": question, "documents": documents})
+        return answer
+
+
+# Initialize the RAG application
+PrimeChatbot = PrimeChatbot(file_path='PDF_docs/doc_3.pdf', 
+                            model= "llama3.1", 
+                            chunk_size=500, 
+                            chunk_overlap=300)
+
+
+vectorstore = PrimeChatbot.create_vectorstore()
+print(vectorstore)
+# question = "was steht unter den punkt 'Properties of Random ReLU Networ'?"
+# answer = PrimeChatbot.initializeChatbot(question)
 # print("Question:", question)
 # print("Answer:", answer)
