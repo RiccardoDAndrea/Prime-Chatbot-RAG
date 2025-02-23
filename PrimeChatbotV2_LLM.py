@@ -7,14 +7,16 @@ from langchain.prompts import PromptTemplate
 from langchain_community.vectorstores import SKLearnVectorStore
 from langchain_core.output_parsers import StrOutputParser
 import os
-from langchain_community.vectorstores import Chroma
+from langchain_chroma import Chroma
+import chromadb
 
 class PrimeChatbot:
-    def __init__(self, file_path, model, chunk_size, chunk_overlap):
+    def __init__(self, file_path, model, chunk_size, chunk_overlap, k_int):
         self.file_path=file_path
         self.model = model
         self.chunk_size=chunk_size
         self.chunk_overlap=chunk_overlap
+        self.k_int = k_int
 
 
     def pdfloader(self):
@@ -64,37 +66,52 @@ class PrimeChatbot:
 
         return doc_splits
     
-    def initialize_chroma(self):
-    
-        db = Chroma.from_documents()
 
-        return db
-
-
-    def create_vectorstore(self):
-        """
-        Creates a vector store from a document by splitting it into chunks and embedding them.
+    # def create_vectorstore(self):
+    #     """
+    #     Creates a vector store from a document by splitting it into chunks and embedding them.
         
-        Retrives:
-        ---
-            self.chunkssplitter(): The split document into chunks and overlaps between the chunks
+    #     Retrives:
+    #     ---
+    #         self.chunkssplitter(): The split document into chunks and overlaps between the chunks
 
-        Returns:
-        ---
-        Collection of vectors 
+    #     Returns:
+    #     ---
+    #     Collection of vectors 
 
-        """
+    #     """
 
-        doc_splits = self.chunkssplitter()
-        vectorstore = SKLearnVectorStore.from_documents(
-            documents=doc_splits,
-            embedding=OllamaEmbeddings(model="llama3.2:latest")
+    #     doc_splits = self.chunkssplitter()
+    #     vectorstore = SKLearnVectorStore.from_documents(
+    #         documents=doc_splits,
+    #         embedding=OllamaEmbeddings(model="llama3.2:latest")
+    #     )
+
+    #     return vectorstore
+    
+    def embeddings(self):
+        embeddings = OllamaEmbeddings(model="llama3.2:latest")  # Korrekte Embeddings-Funktion
+        return embeddings
+
+    def vector_store(self):
+        embeddings = self.embeddings()
+        doc_splits = self.chunkssplitter()  
+        print(f"Number of document chunks: {len(doc_splits)}")  # Debugging
+
+        persistent_client = chromadb.PersistentClient()
+        collection = persistent_client.get_or_create_collection("collection_name")
+        
+        collection.add(ids=["1", "2", "3"], documents=["a", "b", "c"])
+
+        vector_store_from_client = Chroma(
+            client=persistent_client,
+            collection_name="collection_name",
+            embedding_function=embeddings,
         )
+        return vector_store_from_client
 
-        return vectorstore
 
-
-    def Retriever(self, k_int=2):
+    def Retriever(self):
         """
         Retrieves a specified number of relevant documents.
         Retrives:
@@ -109,12 +126,14 @@ class PrimeChatbot:
             A retriever object that can be used to search for documents based on 
             their similarity score.
         """
-
-        vectorstore = self.create_vectorstore()
-        retriever = vectorstore.as_retriever(k=k_int,
-                                            search_type="similarity",
-                                            search_kwargs={"k": k_int}
-                                            )
+        embeddings = self.embeddings()
+        vector_store_chroma = self.vector_store()
+        vector_store = Chroma(
+            collection_name="example_collection",
+            embedding_function=embeddings,
+            persist_directory="./chroma_langchain_db",  # Where to save data locally, remove if not necessary
+        )
+        retriever = vector_store_chroma.as_retriever(search_kwargs={"k": self.k_int})
         return retriever
 
 
@@ -186,35 +205,42 @@ class PrimeChatbot:
         followed by the initialization of a language model. This chain can be used for text generation tasks.
 
         """
-        rag_chain = self.promptTemplate() | self.llm(self.model) | StrOutputParser()
+        rag_chain = self.promptTemplate() | self.llm(self.model) #| StrOutputParser()
 
         return rag_chain
 
 
     def initializeChatbot(self, question):
-        """
-        Initializes the chatbot and processes the input question.
-        """
-        # Retrieve relevant documents
-        retriever = self.Retriever(k_int=1)  # Get top 5 relevant documents
+        retriever = self.Retriever()
         documents = retriever.invoke(question)
 
-        # Get the answer from the language model
+        if not documents:  # Falls keine relevanten Dokumente gefunden wurden
+            print("⚠️ No relevant documents found in Chroma!")
+            return "I don't know. The document might not contain the answer."
+
+        print(f"✅ Retrieved {len(documents)} document(s)")  # Debugging
+        
         llm_chain = self.ragchain()
         answer = llm_chain.invoke({"question": question, "documents": documents})
         return answer
 
 
 # Initialize the RAG application
-PrimeChatbot = PrimeChatbot(file_path='PDF_docs/doc_3.pdf', 
+PrimeChatbot = PrimeChatbot(file_path='PDF_docs/doc_0.pdf', 
                             model= "llama3.1", 
-                            chunk_size=500, 
-                            chunk_overlap=300)
+                            chunk_size=700, 
+                            chunk_overlap=300,
+                            k_int=3)
+
+question = "Can you summaries the paper?"
+answer= PrimeChatbot.initializeChatbot(question)
+print( answer)
 
 
-vectorstore = PrimeChatbot.create_vectorstore()
-print(vectorstore)
-# question = "was steht unter den punkt 'Properties of Random ReLU Networ'?"
-# answer = PrimeChatbot.initializeChatbot(question)
-# print("Question:", question)
-# print("Answer:", answer)
+
+
+
+question = "Can you summaries the paper Two Hundred Years of Cancer Research?"
+answer = PrimeChatbot.initializeChatbot(question)
+print("Question:", question)
+print("Answer:", answer)
