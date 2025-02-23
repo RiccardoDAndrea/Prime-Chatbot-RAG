@@ -7,6 +7,7 @@ from langchain.prompts import PromptTemplate
 from langchain_community.vectorstores import SKLearnVectorStore
 from langchain_core.output_parsers import StrOutputParser
 import os
+from langchain_community.vectorstores import Chroma
 
 class PrimeChatbot:
     def __init__(self, file_path, model, chunk_size, chunk_overlap):
@@ -62,6 +63,12 @@ class PrimeChatbot:
         doc_splits = text_splitter.split_documents(docs)
 
         return doc_splits
+    
+    def initialize_chroma(self):
+    
+        db = Chroma.from_documents()
+
+        return db
 
 
     def create_vectorstore(self):
@@ -184,7 +191,7 @@ class PrimeChatbot:
         return rag_chain
 
 
-    def initaliseChatbot(self, question):
+    def initializeChatbot(self, question):
         """
         Initializes the chatbot and processes the input question.
         """
@@ -199,16 +206,15 @@ class PrimeChatbot:
 
 
 # Initialize the RAG application
-PrimeChatbot = PrimeChatbot(file_path='PDF_docs/doc_0.pdf', 
+PrimeChatbot = PrimeChatbot(file_path='PDF_docs/doc_3.pdf', 
                             model= "llama3.1", 
                             chunk_size=500, 
                             chunk_overlap=300)
 
 
-docs = PrimeChatbot.Retriever()
-#print(docs)
-
-question = "Can you give me some citation that have been in the document?"
-answer = PrimeChatbot.initaliseChatbot(question)
-print("Question:", question)
-print("Answer:", answer)
+vectorstore = PrimeChatbot.create_vectorstore()
+print(vectorstore)
+# question = "was steht unter den punkt 'Properties of Random ReLU Networ'?"
+# answer = PrimeChatbot.initializeChatbot(question)
+# print("Question:", question)
+# print("Answer:", answer)
