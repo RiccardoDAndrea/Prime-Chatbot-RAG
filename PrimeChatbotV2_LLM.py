@@ -89,26 +89,33 @@ class PrimeChatbot:
 
     #     return vectorstore
     
-    def embeddings(self):
-        embeddings = OllamaEmbeddings(model="llama3.2:latest")  # Korrekte Embeddings-Funktion
+    def embedding(self):
+        embeddings = OllamaEmbeddings(model='all-minilm')  # Korrekte Embeddings
         return embeddings
 
-    def vector_store(self):
-        embeddings = self.embeddings()
-        doc_splits = self.chunkssplitter()  
-        print(f"Number of document chunks: {len(doc_splits)}")  # Debugging
-
-        persistent_client = chromadb.PersistentClient()
+    def persistent_clientChroma(self):
+        persistent_client = chromadb.PersistentClient(path="./chroma_langchain_db")  # Verzeichnis für Speicherung
         collection = persistent_client.get_or_create_collection("collection_name")
-        
-        collection.add(ids=["1", "2", "3"], documents=["a", "b", "c"])
-
+        return collection
+    
+    def add_doc_to_Chroma(self):
+        doc_splits = self.chunkssplitter()
+        doc_texts = [doc.page_content for doc in doc_splits]  # Extrahiere den Text
+        doc_ids = [f"doc_{i}" for i in range(len(doc_texts))]  # Einzigartige IDs
+        collection = self.persistent_clientChroma()
+        collection_db = collection.add(ids=doc_ids, documents=doc_texts)  # Speichern in ChromaDB
+        return collection_db
+    
+    def vector_store_from_clientChroma(self):
+        # Schritt 5: Chroma-VectorStore mit gespeicherten Daten initialisieren
+        embeddings = self.embedding()
         vector_store_from_client = Chroma(
-            client=persistent_client,
+            persist_directory="./chroma_langchain_db",
             collection_name="collection_name",
             embedding_function=embeddings,
         )
         return vector_store_from_client
+
 
 
     def Retriever(self):
@@ -126,14 +133,9 @@ class PrimeChatbot:
             A retriever object that can be used to search for documents based on 
             their similarity score.
         """
-        embeddings = self.embeddings()
-        vector_store_chroma = self.vector_store()
-        vector_store = Chroma(
-            collection_name="example_collection",
-            embedding_function=embeddings,
-            persist_directory="./chroma_langchain_db",  # Where to save data locally, remove if not necessary
-        )
-        retriever = vector_store_chroma.as_retriever(search_kwargs={"k": self.k_int})
+        vector_store_from_client = self.vector_store_from_clientChroma()
+
+        retriever = vector_store_from_client.as_retriever(search_kwargs={"k": self.k_int})
         return retriever
 
 
@@ -151,8 +153,7 @@ class PrimeChatbot:
 
         prompt = PromptTemplate(
             template="""<s>[INST] <<SYS>>
-            You are an expert AI assistant. Answer the given question based on the provided documents. 
-            If the documents do not contain the answer, say 'I don't know'. Do not summarize.
+            
             <</SYS>>
             Question: {question}
             Documents: {documents}
@@ -181,7 +182,7 @@ class PrimeChatbot:
         
         llm = ChatOllama(
             model=self.model,
-            temperature=0.5
+            temperature=0.7
         )
         return llm
 
@@ -205,7 +206,7 @@ class PrimeChatbot:
         followed by the initialization of a language model. This chain can be used for text generation tasks.
 
         """
-        rag_chain = self.promptTemplate() | self.llm(self.model) #| StrOutputParser()
+        rag_chain = self.promptTemplate() | self.llm(self.model) | StrOutputParser()
 
         return rag_chain
 
@@ -224,23 +225,20 @@ class PrimeChatbot:
         answer = llm_chain.invoke({"question": question, "documents": documents})
         return answer
 
+retriever = PrimeChatbot.Retriever()
+documents = retriever.invoke(question)
+
+
 
 # Initialize the RAG application
-PrimeChatbot = PrimeChatbot(file_path='PDF_docs/doc_0.pdf', 
-                            model= "llama3.1", 
-                            chunk_size=700, 
-                            chunk_overlap=300,
-                            k_int=3)
-
-question = "Can you summaries the paper?"
-answer= PrimeChatbot.initializeChatbot(question)
-print( answer)
+PrimeChatbot = PrimeChatbot(file_path='PDF_docs/doc_4.pdf', 
+                            model= "llama3.2:latest", 
+                            chunk_size=750, 
+                            chunk_overlap=150,
+                            k_int=10)
 
 
-
-
-
-question = "Can you summaries the paper Two Hundred Years of Cancer Research?"
+question = "Please tell me who wrote the articel CANCER UNDEFEATED?"
 answer = PrimeChatbot.initializeChatbot(question)
 print("Question:", question)
 print("Answer:", answer)
