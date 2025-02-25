@@ -9,6 +9,8 @@ from langchain_core.output_parsers import StrOutputParser
 import os
 from langchain_chroma import Chroma
 import chromadb
+import uuid
+
 ## TODO Write a function for debuing specially for chroma and retriver
 
 
@@ -49,44 +51,33 @@ class PrimeChatbot:
         print(f"🧩 Anzahl der Chunks nach Split: {len(doc_splits)}")  # Debug
         return doc_splits
     
-
-    # def create_vectorstore(self):
-    #     """
-    #     Creates a vector store from a document by splitting it into chunks and embedding them.
-        
-    #     Retrives:
-    #     ---
-    #         self.chunkssplitter(): The split document into chunks and overlaps between the chunks
-
-    #     Returns:
-    #     ---
-    #     Collection of vectors 
-
-    #     """
-
-    #     doc_splits = self.chunkssplitter()
-    #     vectorstore = SKLearnVectorStore.from_documents(
-    #         documents=doc_splits,
-    #         embedding=OllamaEmbeddings(model="llama3.2:latest")
-    #     )
-
-    #     return vectorstore
     
     def embedding(self):
         embeddings = OllamaEmbeddings(model='all-minilm')  # Korrekte Embeddings
         return embeddings
 
     def persistent_clientChroma(self):
-        persistent_client = chromadb.PersistentClient(path="chroma_langchain_db")  # Verzeichnis für Speicherung
+        persistent_client = chromadb.PersistentClient(path="chroma_db")  # Verzeichnis für Speicherung
+        heartbeat = persistent_client.heartbeat()
+        print(f"ChromaDB läuft. Serverzeit: {heartbeat}")
+
         collection = persistent_client.get_or_create_collection("collection_name")
         return collection
     
+    def create_unqiueIds(self):
+        doc_splits = self.chunkssplitter()
+        ids = [str(uuid.uuid5(uuid.NAMESPACE_DNS, doc.page_content)) for doc in doc_splits]
+        unique_ids = list(set(ids))
+        return unique_ids
+    
     def add_doc_to_Chroma(self):
         doc_splits = self.chunkssplitter()
+        unique_ids = self.create_unqiueIds()
+
         doc_texts = [doc.page_content for doc in doc_splits]  # Extrahiere den Text
-        doc_ids = [f"doc_{i}" for i in range(len(doc_texts))]  # Einzigartige IDs
+        #doc_ids = [f"doc_{i}" for i in range(len(doc_texts))]  # Einzigartige IDs
         collection = self.persistent_clientChroma()
-        collection_db = collection.add(ids=doc_ids, documents=doc_texts)  # Speichern in ChromaDB
+        collection_db = collection.add(ids=unique_ids, documents=doc_texts)  # Speichern in ChromaDB
         return collection_db
     
     def vector_store_from_clientChroma(self):
@@ -94,7 +85,7 @@ class PrimeChatbot:
         
         embeddings = self.embedding()
         vector_store_from_client = Chroma(
-            persist_directory="chroma_langchain_db",
+            persist_directory="chroma_db",
             collection_name="collection_name",
             embedding_function=embeddings,
         )
@@ -238,8 +229,8 @@ class PrimeChatbot:
 # Erstelle eine Instanz der Klasse
 prime_chatbot = PrimeChatbot(file_path="PDF_docs/", 
                              model="llama3.2:1b", 
-                             chunk_size=750, 
-                             chunk_overlap=150, 
+                             chunk_size=1000, 
+                             chunk_overlap=200, 
                              k_int=10)
 
 
@@ -247,9 +238,9 @@ question = """What information do you have about Germany?"""
 answer = prime_chatbot.initializeChatbot(question=question)
 print(answer)
 
-# Rufe die Methode auf der Instanz auf
-collection = prime_chatbot.persistent_clientChroma()
-print(collection.count())  # Sollte die Chroma-Sammlung zurückgeben
+# # Rufe die Methode auf der Instanz auf
+# collection = prime_chatbot.persistent_clientChroma()
+# print(collection.count())  # Sollte die Chroma-Sammlung zurückgeben
 
 prime_chatbot.add_doc_to_Chroma()  # Füge Dokumente zur Chroma-Datenbank hinzu
 print("Anzahl gespeicherter Dokumente:", prime_chatbot.persistent_clientChroma().count())

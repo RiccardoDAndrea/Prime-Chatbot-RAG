@@ -10,5 +10,5 @@ prime
 PrimeV2
 .venv
 pipeline.conf
-
+chroma_db
 chroma_langchain_db
