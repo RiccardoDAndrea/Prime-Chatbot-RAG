@@ -22,57 +22,31 @@ class PrimeChatbot:
 
 
     def pdfloader(self):
-        """
-        Extracts data from the PDF File as a String.
+        pdf_files = [f for f in os.listdir(self.file_path) if f.endswith(".pdf")]
+        print(f"📂 Gefundene PDFs: {pdf_files}")  # Debug: Zeige gefundene PDFs an
 
-        Retrieves
-        ----------
-        self.file_path : str
-            Path to the PDF-File.
-
-        Returns
-        -------
-        Strings form Dodcument.
-
-        """
-
-        pdf_files = [f for f in os.listdir(self.file_path) if f.endswith(".pdf")]  # Nur PDFs
-
-        all_docs = [] # initalisieren eine leere liste
+        all_docs = []
         for pdf_file in pdf_files:
             pdf_path = os.path.join(self.file_path, pdf_file)
             loader = PyPDFLoader(pdf_path)
             docs = loader.load()
-            all_docs.extend(docs)  # Dokumente speichern
-            # Speichern all dokumente in die liste all_docs
+            print(f"📄 {pdf_file}: {len(docs)} Seiten geladen")  # Debug
+            all_docs.extend(docs)
 
         return all_docs
 
 
     def chunkssplitter(self):
-        """
-        Splits the document into chunks.
+        all_docs = self.pdfloader()  # `self.file_path` ist bereits in der Methode definiert
+        print(f"📄 Geladene Dokumente: {len(all_docs)}")  # Debug
 
-        Retrieves
-        ----------
-        self.chunk_size : int
-            - Number of chunks of text
-        self.chunk_overlap : int
-            - Number of characters of the previous text
-
-        Returns
-        -------
-        Strings form Dodcument.
-
-        """
-        
-        all_docs = self.pdfloader(self.file_path)       
         text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
             chunk_size=self.chunk_size, 
-            chunk_overlap=self.chunk_overlap)
-        
-        doc_splits = text_splitter.split_documents(all_docs)
+            chunk_overlap=self.chunk_overlap
+        )
 
+        doc_splits = text_splitter.split_documents(all_docs)
+        print(f"🧩 Anzahl der Chunks nach Split: {len(doc_splits)}")  # Debug
         return doc_splits
     
 
@@ -215,7 +189,7 @@ class PrimeChatbot:
         followed by the initialization of a language model. This chain can be used for text generation tasks.
 
         """
-        rag_chain = self.promptTemplate() | self.llm(self.model) #| StrOutputParser()
+        rag_chain = self.promptTemplate() | self.llm() #| StrOutputParser()
 
         return rag_chain
 
@@ -236,13 +210,11 @@ class PrimeChatbot:
 
 # retriever = PrimeChatbot.Retriever()
 # documents = retriever.invoke(question)
-collection = PrimeChatbot.persistent_clientChroma()
-print("Anzahl der gespeicherten Dokumente:", collection.count())  # Sollte > 0 sein
 
 
 
-doc_splits = PrimeChatbot.chunkssplitter()
-print(f"📄 Anzahl der Chunks: {len(doc_splits)}")
+# doc_splits = PrimeChatbot.chunkssplitter()
+# print(f"📄 Anzahl der Chunks: {len(doc_splits)}")
 
 
 
@@ -262,15 +234,18 @@ print(f"📄 Anzahl der Chunks: {len(doc_splits)}")
 #########################################################################
 ### G E T _ A N S W E R _ F R O M _ T H E _ P R I M E _ C H A T B O T ###
 #########################################################################
-# Initialize the RAG application
-PrimeChatbot = PrimeChatbot(file_path='PDF_docs/doc_4.pdf', 
-                            model= "llama3.1:latest", 
-                            chunk_size=750, 
-                            chunk_overlap=150,
-                            k_int=10)
+# Erstelle eine Instanz der Klasse
+prime_chatbot = PrimeChatbot(file_path="PDF_docs/", 
+                             model="llama3.1:latest", 
+                             chunk_size=750, 
+                             chunk_overlap=150, 
+                             k_int=10)
+question = """What information do you have about Germany?"""
+answer = prime_chatbot.initializeChatbot(question=question)
+print(answer)
+# # Rufe die Methode auf der Instanz auf
+# collection = prime_chatbot.persistent_clientChroma()
+# print(collection.count())  # Sollte die Chroma-Sammlung zurückgeben
 
-
-question = "Can you summarie the paper?"
-answer = PrimeChatbot.initializeChatbot(question)
-print("Question:", question)
-print("Answer:", answer)
+# prime_chatbot.add_doc_to_Chroma()  # Füge Dokumente zur Chroma-Datenbank hinzu
+# print("Anzahl gespeicherter Dokumente:", prime_chatbot.persistent_clientChroma().count())
