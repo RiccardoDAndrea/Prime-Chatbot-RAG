@@ -9,6 +9,8 @@ from langchain_core.output_parsers import StrOutputParser
 import os
 from langchain_chroma import Chroma
 import chromadb
+## TODO Write a function for debuing specially for chroma and retriver
+
 
 class PrimeChatbot:
     def __init__(self, file_path, model, chunk_size, chunk_overlap, k_int):
@@ -34,10 +36,17 @@ class PrimeChatbot:
 
         """
 
-        loader = PyPDFLoader(self.file_path)
-        docs = loader.load()
+        pdf_files = [f for f in os.listdir(self.file_path) if f.endswith(".pdf")]  # Nur PDFs
 
-        return docs
+        all_docs = [] # initalisieren eine leere liste
+        for pdf_file in pdf_files:
+            pdf_path = os.path.join(self.file_path, pdf_file)
+            loader = PyPDFLoader(pdf_path)
+            docs = loader.load()
+            all_docs.extend(docs)  # Dokumente speichern
+            # Speichern all dokumente in die liste all_docs
+
+        return all_docs
 
 
     def chunkssplitter(self):
@@ -57,12 +66,12 @@ class PrimeChatbot:
 
         """
         
-        docs = self.pdfloader()       
+        all_docs = self.pdfloader(self.file_path)       
         text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
             chunk_size=self.chunk_size, 
             chunk_overlap=self.chunk_overlap)
         
-        doc_splits = text_splitter.split_documents(docs)
+        doc_splits = text_splitter.split_documents(all_docs)
 
         return doc_splits
     
@@ -163,7 +172,7 @@ class PrimeChatbot:
         return prompt
 
 
-    def llm(self, model):
+    def llm(self):
         """
         Initializes the language model.
 
@@ -206,7 +215,7 @@ class PrimeChatbot:
         followed by the initialization of a language model. This chain can be used for text generation tasks.
 
         """
-        rag_chain = self.promptTemplate() | self.llm(self.model) | StrOutputParser()
+        rag_chain = self.promptTemplate() | self.llm(self.model) #| StrOutputParser()
 
         return rag_chain
 
@@ -225,20 +234,43 @@ class PrimeChatbot:
         answer = llm_chain.invoke({"question": question, "documents": documents})
         return answer
 
-retriever = PrimeChatbot.Retriever()
-documents = retriever.invoke(question)
+# retriever = PrimeChatbot.Retriever()
+# documents = retriever.invoke(question)
+collection = PrimeChatbot.persistent_clientChroma()
+print("Anzahl der gespeicherten Dokumente:", collection.count())  # Sollte > 0 sein
 
 
 
+doc_splits = PrimeChatbot.chunkssplitter()
+print(f"📄 Anzahl der Chunks: {len(doc_splits)}")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#########################################################################
+### G E T _ A N S W E R _ F R O M _ T H E _ P R I M E _ C H A T B O T ###
+#########################################################################
 # Initialize the RAG application
 PrimeChatbot = PrimeChatbot(file_path='PDF_docs/doc_4.pdf', 
-                            model= "llama3.2:latest", 
+                            model= "llama3.1:latest", 
                             chunk_size=750, 
                             chunk_overlap=150,
                             k_int=10)
 
 
-question = "Please tell me who wrote the articel CANCER UNDEFEATED?"
+question = "Can you summarie the paper?"
 answer = PrimeChatbot.initializeChatbot(question)
 print("Question:", question)
 print("Answer:", answer)
