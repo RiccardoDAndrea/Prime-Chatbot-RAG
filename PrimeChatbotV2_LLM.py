@@ -77,7 +77,7 @@ class PrimeChatbot:
         return embeddings
 
     def persistent_clientChroma(self):
-        persistent_client = chromadb.PersistentClient(path="./chroma_langchain_db")  # Verzeichnis für Speicherung
+        persistent_client = chromadb.PersistentClient(path="chroma_langchain_db")  # Verzeichnis für Speicherung
         collection = persistent_client.get_or_create_collection("collection_name")
         return collection
     
@@ -91,9 +91,10 @@ class PrimeChatbot:
     
     def vector_store_from_clientChroma(self):
         # Schritt 5: Chroma-VectorStore mit gespeicherten Daten initialisieren
+        
         embeddings = self.embedding()
         vector_store_from_client = Chroma(
-            persist_directory="./chroma_langchain_db",
+            persist_directory="chroma_langchain_db",
             collection_name="collection_name",
             embedding_function=embeddings,
         )
@@ -189,7 +190,7 @@ class PrimeChatbot:
         followed by the initialization of a language model. This chain can be used for text generation tasks.
 
         """
-        rag_chain = self.promptTemplate() | self.llm() #| StrOutputParser()
+        rag_chain = self.promptTemplate() | self.llm() | StrOutputParser()
 
         return rag_chain
 
@@ -236,16 +237,19 @@ class PrimeChatbot:
 #########################################################################
 # Erstelle eine Instanz der Klasse
 prime_chatbot = PrimeChatbot(file_path="PDF_docs/", 
-                             model="llama3.1:latest", 
+                             model="llama3.2:1b", 
                              chunk_size=750, 
                              chunk_overlap=150, 
                              k_int=10)
+
+
 question = """What information do you have about Germany?"""
 answer = prime_chatbot.initializeChatbot(question=question)
 print(answer)
-# # Rufe die Methode auf der Instanz auf
-# collection = prime_chatbot.persistent_clientChroma()
-# print(collection.count())  # Sollte die Chroma-Sammlung zurückgeben
 
-# prime_chatbot.add_doc_to_Chroma()  # Füge Dokumente zur Chroma-Datenbank hinzu
-# print("Anzahl gespeicherter Dokumente:", prime_chatbot.persistent_clientChroma().count())
+# Rufe die Methode auf der Instanz auf
+collection = prime_chatbot.persistent_clientChroma()
+print(collection.count())  # Sollte die Chroma-Sammlung zurückgeben
+
+prime_chatbot.add_doc_to_Chroma()  # Füge Dokumente zur Chroma-Datenbank hinzu
+print("Anzahl gespeicherter Dokumente:", prime_chatbot.persistent_clientChroma().count())
