@@ -110,7 +110,7 @@ class PrimeChatbot:
         """
         vector_store_from_client = self.vector_store_from_clientChroma()
 
-        retriever = vector_store_from_client.as_retriever(search_kwargs={"k": self.k_int})
+        retriever = vector_store_from_client.as_retriever(search_type="similarity",search_kwargs={"k": self.k_int})
         return retriever
 
 
@@ -127,12 +127,13 @@ class PrimeChatbot:
         """
 
         prompt = PromptTemplate(
-            template="""<s>[INST] <<SYS>>
-            
-            <</SYS>>
-            Question: {question}
-            Documents: {documents}
-            Answer:""",
+            template="""You are an assistant for question-answering tasks.
+                Use the following documents to answer the question.
+                If you don't know the answer, just say that you don't know.
+                Keep the answer concise:
+                Question: {question}
+                Documents: {documents}
+                Answer:""",
             input_variables=["question", "documents"],
             )
         return prompt
@@ -190,9 +191,6 @@ class PrimeChatbot:
         retriever = self.Retriever()
         documents = retriever.invoke(question)
 
-        if not documents:  # Falls keine relevanten Dokumente gefunden wurden
-            print("⚠️ No relevant documents found in Chroma!")
-            return "I don't know. The document might not contain the answer."
 
         print(f"✅ Retrieved {len(documents)} document(s)")  # Debugging
         
@@ -200,47 +198,34 @@ class PrimeChatbot:
         answer = llm_chain.invoke({"question": question, "documents": documents})
         return answer
 
-# retriever = PrimeChatbot.Retriever()
-# documents = retriever.invoke(question)
+# Erstelle eine Instanz von PrimeChatbot
+prime_chatbot = PrimeChatbot(
+    file_path="PDF_docs/", 
+    model="llama3.2:1b", 
+    chunk_size=1000, 
+    chunk_overlap=200, 
+    k_int=2
+)
 
 
-
-# doc_splits = PrimeChatbot.chunkssplitter()
-# print(f"📄 Anzahl der Chunks: {len(doc_splits)}")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#########################################################################
-### G E T _ A N S W E R _ F R O M _ T H E _ P R I M E _ C H A T B O T ###
-#########################################################################
+# #########################################################################
+# ### G E T _ A N S W E R _ F R O M _ T H E _ P R I M E _ C H A T B O T ###
+# #########################################################################
 # Erstelle eine Instanz der Klasse
 prime_chatbot = PrimeChatbot(file_path="PDF_docs/", 
-                             model="llama3.2:1b", 
-                             chunk_size=1000, 
-                             chunk_overlap=200, 
+                             model="llama3.1:latest", 
+                             chunk_size=400, 
+                             chunk_overlap=40, 
                              k_int=10)
 
 
-question = """What information do you have about Germany?"""
+question = """Tell me something about Riccardo Education"""
 answer = prime_chatbot.initializeChatbot(question=question)
 print(answer)
 
 # # Rufe die Methode auf der Instanz auf
-# collection = prime_chatbot.persistent_clientChroma()
-# print(collection.count())  # Sollte die Chroma-Sammlung zurückgeben
+collection = prime_chatbot.persistent_clientChroma()
+print(collection.count())  # Sollte die Chroma-Sammlung zurückgeben
 
 prime_chatbot.add_doc_to_Chroma()  # Füge Dokumente zur Chroma-Datenbank hinzu
 print("Anzahl gespeicherter Dokumente:", prime_chatbot.persistent_clientChroma().count())

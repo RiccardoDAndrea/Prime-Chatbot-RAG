@@ -9,6 +9,12 @@ myvenv
 prime
 PrimeV2
 .venv
+# secrets
 pipeline.conf
+
+# database
 chroma_db
 chroma_langchain_db
+
+# PDF Files
+PDF_docs
