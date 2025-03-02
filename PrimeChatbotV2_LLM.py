@@ -219,7 +219,7 @@ prime_chatbot = PrimeChatbot(file_path="PDF_docs/",
                              k_int=10)
 
 
-question = """Tell me something about Riccardo Education"""
+question = """Describe me something about Riccardo Education"""
 answer = prime_chatbot.initializeChatbot(question=question)
 print(answer)
 
