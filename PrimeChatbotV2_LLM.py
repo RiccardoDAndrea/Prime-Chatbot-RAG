@@ -39,7 +39,7 @@ class PrimeChatbot:
 
 
     def chunkssplitter(self):
-        all_docs = self.pdfloader()  # `self.file_path` ist bereits in der Methode definiert
+        all_docs = self.pdfloader()  
         print(f"📄 Geladene Dokumente: {len(all_docs)}")  # Debug
 
         text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
