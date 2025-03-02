@@ -201,7 +201,7 @@ class PrimeChatbot:
 # Erstelle eine Instanz von PrimeChatbot
 prime_chatbot = PrimeChatbot(
     file_path="PDF_docs/", 
-    model="llama3.2:1b", 
+    model="llama3.2:latest", 
     chunk_size=1000, 
     chunk_overlap=200, 
     k_int=2
