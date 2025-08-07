@@ -18,17 +18,22 @@ class PrimeChatbot:
         self.doc_splits = None
 
     def pdfloader(self):
+        "Load combines all PDF and uploads to PDFLoader"
+
         pdf_files = [f for f in os.listdir(self.file_path) if f.endswith(".pdf")]
         print(f"📂 Gefundene PDFs: {pdf_files}")
+        
         all_docs = []
         for pdf_file in pdf_files:
             loader = PyPDFLoader(os.path.join(self.file_path, pdf_file))
             docs = loader.load()
             print(f"📄 {pdf_file}: {len(docs)} Seiten geladen")
             all_docs.extend(docs)
+        
         return all_docs
 
     def chunkssplitter(self):
+        "Chunks the text"
         if self.doc_splits:
             return self.doc_splits
         all_docs = self.pdfloader()
@@ -41,6 +46,7 @@ class PrimeChatbot:
         return self.doc_splits
 
     def embedding(self):
+        "Creates the Embeddings"
         return OllamaEmbeddings(model='all-minilm')
 
     def persistent_clientChroma(self):
@@ -115,7 +121,7 @@ class PrimeChatbot:
         )
 
     def llm(self):
-        return ChatOllama(model=self.model, temperature=0.7)
+        return ChatOllama(model=self.model, temperature=0.5)
 
     def ragchain(self):
         return self.promptTemplate() | self.llm() | StrOutputParser()
@@ -148,16 +154,18 @@ class PrimeChatbot:
 # Bot instanziieren
 prime_chatbot = PrimeChatbot(
     file_path="PDF_docs/",
-    model="llama3.1:latest",
+    model="llama3.2:latest",
     chunk_size=400,
     chunk_overlap=40,
-    k_int=5
+    k_int=10
 )
 
 # Nur neue Chunks hinzufügen
 prime_chatbot.add_only_new_docs_to_chroma()
 
 # Frage stellen
-frage = "Difference between ETL and ELT in Data engeeniring"
+frage = """You are now a data engineer and are writing your bachelor's thesis. 
+You must describe the difference between ETL and ELT based on the documents.
+Write a text of at least 500 words."""
 antwort = prime_chatbot.initializeChatbot(frage)
 print("🤖", antwort)

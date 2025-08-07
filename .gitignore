@@ -18,3 +18,7 @@ chroma_langchain_db
 
 # PDF Files
 PDF_docs
+
+# .env
+.env 
+credentials.conf
