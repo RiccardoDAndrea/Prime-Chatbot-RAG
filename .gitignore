@@ -15,6 +15,7 @@ pipeline.conf
 # database
 chroma_db
 chroma_langchain_db
+.prime_chatbot/
 
 # PDF Files
 PDF_docs

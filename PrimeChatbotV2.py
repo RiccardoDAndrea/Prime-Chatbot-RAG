@@ -1,29 +1,63 @@
-# from langchain_core.output_parsers import StrOutputParser
-# from PrimeChatbotV2_LLM import pdfloader, chunkssplitter, create_vectorstore, retriever, llm, promptTemplate
+"""Command-line entry point for PrimeChatbot V2."""
+
+from __future__ import annotations
+
+import argparse
+import logging
+
+from PrimeChatbotV2_LLM import PrimeChatbot, format_sources
 
 
-# docs = pdfloader("PDF_docs/NEJMra1204479.pdf")
-# doc_splits = chunkssplitter(chunk_size= 4500, chunk_overlap=300) # Seite ist auf "page_lage" nicht "page"
-# vectorstore = create_vectorstore()
-# Retriever = retriever(k_int=4)
-# prompt = promptTemplate()
-# llm = llm(model="llama3.2:1b")
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        description="Index local PDFs and ask a grounded question with Ollama."
+    )
+    parser.add_argument("question", help="Question to answer from the PDFs")
+    parser.add_argument(
+        "--pdf-path",
+        default="Prime_Chatbot_V1/PDF_docs",
+        help="PDF file or directory containing PDFs",
+    )
+    parser.add_argument("--model", default="qwen2.5:7b")
+    parser.add_argument("--embedding-model", default="granite-embedding:30m")
+    parser.add_argument("--chunk-size", type=int, default=800)
+    parser.add_argument("--chunk-overlap", type=int, default=120)
+    parser.add_argument("--results", type=int, default=6)
+    parser.add_argument("--database", default="chroma_db")
+    parser.add_argument("--collection", default="prime_chatbot_v2")
+    parser.add_argument(
+        "--skip-index",
+        action="store_true",
+        help="Use the existing index without scanning PDFs",
+    )
+    return parser
 
 
-# def initalise_PrimeV2(question):
-#     # Retrieve relevant documentssssss
-#     rag_chain = prompt | llm | StrOutputParser()
-#     documents = Retriever.invoke(question)
-#     # Extract content from retrieved documents
-#     doc_texts = "\\n".join([doc.page_content for doc in documents])
-#     # Get the answer from the language model
-    
-#     answer = rag_chain.invoke({"question": question, "documents": doc_texts})
-#     return answer
+def main() -> int:
+    args = build_parser().parse_args()
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
-# question = ""
-# answer = initalise_PrimeV2(question)
-# print("Question:", question)
-# print("Answer:", answer)
+    chatbot = PrimeChatbot(
+        file_path=args.pdf_path,
+        model=args.model,
+        embedding_model=args.embedding_model,
+        chunk_size=args.chunk_size,
+        chunk_overlap=args.chunk_overlap,
+        k_int=args.results,
+        persist_directory=args.database,
+        collection_name=args.collection,
+    )
+
+    if not args.skip_index:
+        added = chatbot.add_only_new_docs_to_chroma()
+        print(f"Indexed {added} new or changed chunk(s).")
+
+    result = chatbot.ask(args.question)
+    print(f"\n{result.answer}")
+    if result.sources:
+        print(f"\nSources:\n{format_sources(result.sources)}")
+    return 0
 
 
+if __name__ == "__main__":
+    raise SystemExit(main())

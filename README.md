@@ -47,15 +47,54 @@ Alternatively, you can clone the repository and install the required dependencie
 pip install -r requirements.txt
 ```
 
-Then start the chatbot with:
+Make sure Ollama is running and the default models are installed:
+```bash
+ollama pull qwen2.5:7b
+ollama pull granite-embedding:30m
+```
+
+Then ask a question about all PDFs in the default document directory:
+```bash
+python PrimeChatbotV2.py "What is MongoDB?"
+```
+
+Start the Streamlit app for PDF uploads and a browser-based chat:
+```bash
+streamlit run PrimeChatbotV2_Streamlit.py
+```
+
+Use another PDF directory or model with command-line options:
+```bash
+python PrimeChatbotV2.py \
+  "Explain the difference between ETL and ELT." \
+  --pdf-path /path/to/pdfs \
+  --model qwen2.5:7b
+```
+
+The first run creates a persistent ChromaDB index. Later runs add only new or
+changed chunks. Use `--skip-index` when the index is already up to date.
+
+The Python API returns both the grounded answer and its sources:
+```python
+from PrimeChatbotV2_LLM import PrimeChatbot
+
+chatbot = PrimeChatbot(file_path="Prime_Chatbot_V1/PDF_docs")
+result = chatbot.index_and_ask("What is MongoDB?")
+
+print(result.answer)
+print(result.sources)
+```
+
+The legacy Streamlit application can be started with:
 ```
 streamlit run Prime-Chatbot.py
 ```
 
 ### Data protection
-Confidential PDF documents are neither saved nor cached. However, if there are any concerns, the algorithm is publicly available in the appendix and can be checked.
+The V2 application processes documents locally through Ollama. Uploaded PDFs
+and their ChromaDB index are stored under `.prime_chatbot/` on the machine
+running Streamlit and are not sent to OpenAI or another hosted model provider.
+Delete that directory to remove uploaded files and generated indexes.
 
 ### Contact
 If you have any questions or feedback, please do not hesitate to contact me. We look forward to your feedback and are happy to provide support!
-
-
