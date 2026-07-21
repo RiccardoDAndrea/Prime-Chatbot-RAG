@@ -10,3 +10,6 @@ prime
 PrimeV2
 .venv
 pipeline.conf
+uploads
+chroma_db
+Prime_Chatbot_V1/PDF_docs
