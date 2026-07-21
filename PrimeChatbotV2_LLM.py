@@ -82,7 +82,7 @@ class PrimeChatbot:
         doc_splits = self.chunkssplitter()
         vectorstore = SKLearnVectorStore.from_documents(
             documents=doc_splits,
-            embedding=OllamaEmbeddings(model="llama3.2:latest")
+            embedding=OllamaEmbeddings(model="granite-embedding:30m")
         )
 
         return vectorstore
@@ -213,7 +213,7 @@ class PrimeChatbot:
 
 
 # Initialize the RAG application
-PrimeChatbot = PrimeChatbot(file_path='PDF_docs/doc_3.pdf', 
+PrimeChatbot = PrimeChatbot(file_path='Prime_Chatbot_V1/PDF_docs/linuxbasicsforhackers.pdf', 
                             model= "llama3.1", 
                             chunk_size=500, 
                             chunk_overlap=300)
